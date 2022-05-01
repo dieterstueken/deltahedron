@@ -1,0 +1,48 @@
+plugins {
+    id "org.openjfx.javafxplugin" version "0.0.12"
+    id 'java-library'
+    id 'idea'
+}
+
+javafx {
+    version = '17.0.2'
+    modules = ['javafx.controls']
+}
+
+version = '1.0'
+
+idea.project {
+    jdkName = '17'
+    languageLevel = JavaVersion.VERSION_11
+    vcs = 'Git'
+}
+
+allprojects {
+    apply plugin: 'idea'
+
+    group="javaFX3D"
+
+    repositories {
+        mavenCentral()
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    plugins.withType(JavaPlugin) {
+
+        idea {
+            module {
+                outputDir file('build/idea/main')
+                testOutputDir file('build/idea/test')
+            }
+        }
+
+        dependencies {
+            testImplementation group: 'junit', name: 'junit', version: '+'
+        }
+    }
+}
