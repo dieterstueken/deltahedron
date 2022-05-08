@@ -2,7 +2,7 @@ package ditz.atrops.hedron;
 
 import javafx.geometry.Point3D;
 
-import java.util.*;
+import java.util.Collection;
 import java.util.function.Supplier;
 
 /**
@@ -11,38 +11,10 @@ import java.util.function.Supplier;
  * Date: 16.04.22
  * Time: 13:45
  */
-public class UnitSphere implements Faces {
+public class UnitSphere extends Geodesic {
 
     final double MAX = 1L<<32;
 
-    final List<Vertex> points = new ArrayList<>();
-
-    final Set<Face> faces = new HashSet<>();
-
-    @Override
-    public Face newFace(Vertex v0, Vertex v1, Vertex v2) {
-        Face face = new Face(v0, v1, v2);
-        addFace(face);
-
-        return face;
-    }
-
-    @Override
-    public void addFace(Face face) {
-        boolean added = faces.add(face);
-        if(!added)
-            throw new IllegalStateException("face already registered");
-        face.connect();
-    }
-
-    @Override
-    public void removeFace(Face face) {
-        boolean removed = faces.remove(face);
-        face.cutOff();
-
-        if(!removed)
-            throw new IllegalStateException("face not registered");
-    }
 
     int addPoints(Collection<Point3D> points) {
         points.forEach(this::addPoint);
@@ -54,14 +26,14 @@ public class UnitSphere implements Faces {
             addPoint(points.get());
     }
 
-    boolean addPoint(Point3D point) {
+    public Vertex addPoint(Point3D point) {
 
         double dist = Double.NEGATIVE_INFINITY;
         Face faced = null;
 
         for (Vertex v : points) {
-            if(v.pyth(point)*MAX<1)
-                return false;
+            if(v.pyth(point)*MAX<1) // reject
+                return null;
 
             for (Face f : v.faces) {
                 if(f!=faced) { // already found
@@ -77,7 +49,7 @@ public class UnitSphere implements Faces {
         if(faced==null) {
 
             if(points.size()<4) {
-                Vertex vx = newVertex(point);
+                Vertex vx = super.addPoint(point);
 
                 // build flat triangles
                 if (points.size() == 3) {
@@ -87,23 +59,16 @@ public class UnitSphere implements Faces {
                     newFace(v0, v1, vx);
                     newFace(v1, v0, vx);
                 }
-                return true;
+                return vx;
             }
         } else {
-            Vertex vx = newVertex(point);
+            Vertex vx = super.addPoint(point);
             faced.addVertex(vx, this);
-            return true;
+            return vx;
         }
 
         // outside?
-        return false;
-    }
-
-    private Vertex newVertex(Point3D point) {
-        int i = points.size();
-        Vertex v = new Vertex(i, point);
-        points.add(v);
-        return v;
+        return null;
     }
 
     void generate(int n) {
@@ -124,6 +89,9 @@ public class UnitSphere implements Faces {
     public static void main(String ... args) {
 
         UnitSphere s = new UnitSphere();
+
+        ObservablePoints points = new ObservablePoints(s.points);
+        ObservableFaces faces = new ObservableFaces(s.faces);
 
         try {
             RandomPoints rand = new RandomPoints();

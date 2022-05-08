@@ -33,13 +33,22 @@ public class Face extends AbstractList<Vertex> implements RandomAccess {
     final Point3D nom;
     final double det;
 
-    public Face(Vertex v0, Vertex v1, Vertex v2) {
+    final int index;
+
+    public int color;
+
+    public Face(int index, Vertex v0, Vertex v1, Vertex v2) {
+
+        this.index = index;
+
         this.v0 = v0;
         this.v1 = v1;
         this.v2 = v2;
 
         this.det = det(v0.p0, v1.p0, v2.p0);
         this.nom = nom(v0.p0, v1.p0, v2.p0);
+
+        this.color = index;
     }
 
     public int size() {

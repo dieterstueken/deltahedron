@@ -2,7 +2,6 @@ package ditz.atrops.hedron;
 
 import javafx.geometry.Point3D;
 
-
 import java.util.AbstractList;
 import java.util.RandomAccess;
 

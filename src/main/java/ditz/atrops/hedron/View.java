@@ -12,9 +12,6 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 
-import java.io.InputStream;
-import java.util.Collection;
-
 /**
  * version:     $
  * created by:  d.stueken
@@ -85,91 +82,37 @@ public class View extends Application {
     }
 
     private Node prepareHedron() {
-        MeshView view = new MeshView(createRandomMesh(4));
-        view.setMaterial(createMaterial());
+        Palette palette = Palette.DEFAULT;
+
+        UnitSphere s = new UnitSphere();
+        s.generate(17);
+
+        //s.addPoints(Cube.UNIT);
+        TriangleMesh mesh = new TriangleMesh(VertexFormat.POINT_TEXCOORD);
+        mesh.getTexCoords().setAll(palette.getTextPoints());
+        mesh.getPoints().setAll(s.getPoints());
+        mesh.getFaces().setAll(s.getFaces());
+
+        MeshView view = new MeshView(mesh);
+
+        view.setMaterial(palette.createMaterial());
         view.setDrawMode(DrawMode.FILL);
-        view.setCullFace(CullFace.BACK);
+        view.setCullFace(CullFace.NONE);
+        view.setOnMouseClicked(e->{
+            int selectedFace = e.getPickResult().getIntersectedFace();
+            if(selectedFace>0) {
+                ObservableFaceArray faces = ((TriangleMesh) view.getMesh()).getFaces();
+                int colorId = faces.get(6 * selectedFace + 1);
+                System.out.format("color: %d\n", colorId);
+            }
+        });
+
         return view;
     }
 
-    private static TriangleMesh createRandomMesh(int count) {
-        UnitSphere s = new UnitSphere();
-        s.generate(count);
-        //s.addPoints(Cube.UNIT);
-        return createMesh(s);
-    }
-
-    private static TriangleMesh createMesh(UnitSphere s) {
-        TriangleMesh mesh = new TriangleMesh(VertexFormat.POINT_TEXCOORD);
-        mesh.getTexCoords().setAll(getColors());
-        mesh.getPoints().setAll(getCoords(s.points));
-        mesh.getFaces().setAll(getFaces(s.faces));
-        return mesh;
-    }
-
-    private static float scale(double value) {
-        return (float) value;
-    }
-
-    private static float[] getCoords(Collection<Vertex> points) {
-        float[] coords = new float[3*points.size()];
-
-        for (Vertex v : points) {
-            int i = v.index;
-            coords[3*i+0] = scale(v.p0.getX());
-            coords[3*i+1] = scale(v.p0.getY());
-            coords[3*i+2] = scale(v.p0.getZ());
-        }
-
-        return coords;
-    }
-
-    static int [] getFaces(Collection<Face> faces) {
-        int i = faces.size();
-        int[] idx = new int[6*i];
-        
-        i=0;
-        for (Face f : faces) {
-            if(i>=idx.length)
-                break;
-
-            idx[i + 0] = f.v0.index;
-            idx[i + 2] = f.v1.index;
-            idx[i + 4] = f.v2.index;
-
-            int color = f.hashCode() % 4;
-            idx[i + 1] = color;
-            idx[i + 3] = color;
-            idx[i + 5] = color;
-
-            i += 6;
-        }
-
-        return idx;
-    }
-
-    static float [] getColors() {
-        float[] colors = new float[8];
-        for(int i=0; i<4; ++i) {
-            colors[2*i+0] = (i + 0.5F)/4;
-            colors[2*i+1] = 0.5F;
-        }
-
-        return colors;
-    }
-
-    static PhongMaterial createMaterial() {
-        PhongMaterial mat = new PhongMaterial();
-
-        InputStream colors = View.class.getResourceAsStream("/colors.png");
-
-        mat.setDiffuseMap(new Image(colors));
-        return mat;
-    }
-
-    private Sphere prepareEarth(float size) {
+    private static Sphere prepareEarth(float size) {
         PhongMaterial earthMaterial = new PhongMaterial();
-        earthMaterial.setDiffuseMap(new Image(getClass().getResourceAsStream("/earth-d.jpg")));
+        earthMaterial.setDiffuseMap(new Image(View.class.getResourceAsStream("/earth-d.jpg")));
         //earthMaterial.setSelfIlluminationMap(new Image(getClass().getResourceAsStream("/resources/earth/earth-l.jpg")));
         //earthMaterial.setSpecularMap(new Image(getClass().getResourceAsStream("/resources/earth/earth-s.jpg")));
         //earthMaterial.setBumpMap(new Image(getClass().getResourceAsStream("/resources/earth/earth-n.jpg")));

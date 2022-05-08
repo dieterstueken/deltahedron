@@ -25,6 +25,15 @@ public class Vertex {
         this.p0 = p0;
     }
 
+    public Double getCoord(int i) {
+        // modulo, even for negative values
+        return switch (i % 3) {
+            case -2, 1 -> p0.getY();
+            case -1, 2 -> p0.getZ();
+            default -> p0.getX();
+        };
+    }
+
     public boolean addFace(Face newFace) {
 
         if(faces.isEmpty())
