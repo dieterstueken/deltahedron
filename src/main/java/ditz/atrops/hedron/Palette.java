@@ -1,5 +1,6 @@
 package ditz.atrops.hedron;
 
+import ditz.atrops.collections.AbstractObservableFloats;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;

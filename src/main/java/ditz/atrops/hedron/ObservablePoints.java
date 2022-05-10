@@ -1,33 +1,32 @@
 package ditz.atrops.hedron;
 
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
+import ditz.atrops.collections.AbstractObservableFloats;
+import ditz.atrops.collections.ObservableArrayList;
+import javafx.collections.ObservableFloatArray;
 
-public class ObservablePoints extends AbstractObservableFloats {
+public class ObservablePoints extends ObservableArrayList<Vertex> {
 
-    private final ObservableList<Vertex> points;
+    AbstractObservableFloats points = new AbstractObservableFloats() {
 
-    public ObservablePoints(ObservableList<Vertex> points) {
-        this.points = points;
-        this.points.addListener(this::onChanged);
-    }
-
-    void onChanged(ListChangeListener.Change<? extends Vertex> c) {
-        while (c.next()) {
-            System.out.print("points ");
-            System.out.println(c);
+        @Override
+        public int size() {
+            return 3 * ObservablePoints.this.size();
         }
-    }
+
+        @Override
+        public float get(int index) {
+            Vertex v = ObservablePoints.super.get(index / 3);
+            double coord = v.getCoord(index % 3);
+            return (float) coord;
+        }
+    };
 
     @Override
-    public int size() {
-        return 3*points.size();
+    protected final void fireChange(boolean sizeChanged, int from, int to) {
+        points.submitChange(sizeChanged, 3*from, 3*to);
     }
 
-    @Override
-    public float get(int index) {
-        Vertex v = points.get(index/3);
-        double coord = v.getCoord(index%3);
-        return (float) coord;
+    public void addTarget(ObservableFloatArray target) {
+        points.addTarget(target);
     }
 }

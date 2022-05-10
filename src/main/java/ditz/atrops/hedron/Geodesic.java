@@ -1,8 +1,7 @@
 package ditz.atrops.hedron;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Point3D;
+import javafx.scene.shape.TriangleMesh;
 
 
 /**
@@ -14,16 +13,14 @@ import javafx.geometry.Point3D;
  */
 public class Geodesic implements Faces {
 
-    final ObservableList<Vertex> points = FXCollections.observableArrayList();
-    final ObservableList<Face> faces = FXCollections.observableArrayList();
+    final ObservablePoints points = new ObservablePoints();
+    final ObservableFaces faces = new ObservableFaces();
     int faceId = 0;
 
-    public ObservableFaces getFaces() {
-        return new ObservableFaces(faces);
-    }
-
-    public ObservablePoints getPoints() {
-        return new ObservablePoints(points);
+    public void clear() {
+        faces.clear();
+        points.clear();
+        faceId = 0;
     }
 
     public Vertex addPoint(Point3D point) {
@@ -41,11 +38,10 @@ public class Geodesic implements Faces {
     }
 
     public void removeFace(Face face) {
-        boolean removed = faces.remove(face);
-        face.cutOff();
-
-        if(!removed)
+        if(!faces.remove(face))
             throw new IllegalStateException("face not registered");
+
+        face.cutOff();
     }
 
     @Override
@@ -56,5 +52,18 @@ public class Geodesic implements Faces {
         face.connect();
 
         return face;
+    }
+
+    public TriangleMesh createMesh() {
+        TriangleMesh mesh = new TriangleMesh();
+        points.addTarget(mesh.getPoints());
+        faces.addTarget(mesh.getFaces());
+        return mesh;
+    }
+
+    public Stat stat() {
+        Stat stat = new Stat();
+        points.forEach(p->stat.add(p.faces.size()));
+        return stat;
     }
 }

@@ -1,5 +1,6 @@
 package ditz.atrops.hedron;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -20,6 +21,8 @@ import javafx.stage.Stage;
  * modified on: $
  */
 public class View extends Application {
+
+    UnitSphere sphere = new UnitSphere();
 
     private static final float WIDTH = 600;
     private static final float HEIGHT = 500;
@@ -82,16 +85,13 @@ public class View extends Application {
     }
 
     private Node prepareHedron() {
+        sphere.generate(4);
+
         Palette palette = Palette.DEFAULT;
 
-        UnitSphere s = new UnitSphere();
-        s.generate(17);
-
         //s.addPoints(Cube.UNIT);
-        TriangleMesh mesh = new TriangleMesh(VertexFormat.POINT_TEXCOORD);
+        TriangleMesh mesh = sphere.createMesh();
         mesh.getTexCoords().setAll(palette.getTextPoints());
-        mesh.getPoints().setAll(s.getPoints());
-        mesh.getFaces().setAll(s.getFaces());
 
         MeshView view = new MeshView(mesh);
 
@@ -106,6 +106,21 @@ public class View extends Application {
                 System.out.format("color: %d\n", colorId);
             }
         });
+
+        AnimationTimer timer = new AnimationTimer() {
+            final RandomPoints rand = new RandomPoints();
+
+            @Override
+            public void handle(long now) {
+                if((now%10000)==0) {
+                    sphere.addPoint(rand.get());
+                    System.out.print(sphere.points.size());
+                    System.out.print(" ");
+                    sphere.stat().showLine();
+                }
+            }
+        };
+        timer.start();
 
         return view;
     }

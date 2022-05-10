@@ -9,4 +9,5 @@ module ditz.atrops.hedron {
     requires javafx.graphics;
 
     opens ditz.atrops.hedron to javafx.graphics;
+    opens ditz.atrops.collections to javafx.graphics;
 }

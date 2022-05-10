@@ -85,29 +85,14 @@ public class UnitSphere extends Geodesic {
         return faces.size();
     }
 
-
     public static void main(String ... args) {
 
         UnitSphere s = new UnitSphere();
+        RandomPoints rand = new RandomPoints();
 
-        ObservablePoints points = new ObservablePoints(s.points);
-        ObservableFaces faces = new ObservableFaces(s.faces);
-
-        try {
-            RandomPoints rand = new RandomPoints();
-
-            s.addPoints(rand, 8);
-            
-        } finally {
-            System.out.format("points: %d, faces: %d\n", s.points.size(), s.faces.size());
-
-            Stat stat = new Stat();
-
-            for (Vertex v : s.points) {
-                stat.add(v.faces.size());
-            }
-
-            stat.show();
+        for(int i=0; i<30; ++i) {
+            s.clear();
+            s.addPoints(rand, 127);
 
         }
     }
