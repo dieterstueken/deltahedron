@@ -26,6 +26,13 @@ public class ObservableFaces extends ObservableArrayList<Face> {
         }
     };
 
+    public void updateColor(int i) {
+        Face face = get(i);
+        int color = face.color;
+        face.color = (color+1)%6;
+        fireChange(false, i, i+1);
+    }
+
     @Override
     protected final void fireChange(boolean sizeChanged, int from, int to) {
         faces.submitChange(sizeChanged, 6*from, 6*to);

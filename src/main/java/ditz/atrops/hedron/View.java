@@ -103,6 +103,7 @@ public class View extends Application {
             if(selectedFace>0) {
                 ObservableFaceArray faces = ((TriangleMesh) view.getMesh()).getFaces();
                 int colorId = faces.get(6 * selectedFace + 1);
+                sphere.faces.updateColor(selectedFace);
                 System.out.format("color: %d\n", colorId);
             }
         });
@@ -110,13 +111,17 @@ public class View extends Application {
         AnimationTimer timer = new AnimationTimer() {
             final RandomPoints rand = new RandomPoints();
 
+            long until = 0;
+
             @Override
             public void handle(long now) {
-                if((now%10000)==0) {
+                if(now>until) {
                     sphere.addPoint(rand.get());
                     System.out.print(sphere.points.size());
                     System.out.print(" ");
                     sphere.stat().showLine();
+
+                    until += 1000;
                 }
             }
         };
