@@ -13,8 +13,14 @@ import javafx.scene.shape.TriangleMesh;
  */
 public class Geodesic  {
 
-    final ObservablePoints points = new ObservablePoints();
-    final ObservableFaces faces = new ObservableFaces();
+    final ObservableFaces faces;
+
+    final ObservablePoints points;
+
+    public Geodesic() {
+        faces = new ObservableFaces();
+        points = new ObservablePoints(faces);
+    }
 
     public void clear() {
         faces.clear();

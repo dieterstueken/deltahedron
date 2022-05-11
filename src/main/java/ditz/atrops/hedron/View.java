@@ -104,7 +104,7 @@ public class View extends Application {
                 ObservableFaceArray faces = ((TriangleMesh) view.getMesh()).getFaces();
                 int colorId = faces.get(6 * selectedFace + 1);
                 sphere.faces.updateColor(selectedFace);
-                System.out.format("color: %d\n", colorId);
+                System.out.format("face: %d color: %d\n", selectedFace, colorId);
             }
         });
 

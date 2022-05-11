@@ -1,9 +1,12 @@
 package ditz.atrops.hedron;
 
+import ditz.atrops.collections.Indexed;
 import javafx.geometry.Point3D;
 
 import java.util.AbstractList;
 import java.util.RandomAccess;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
 /**
  * version:     $
@@ -12,7 +15,7 @@ import java.util.RandomAccess;
  * modified by: $
  * modified on: $
  */
-public class Face extends AbstractList<Vertex> implements RandomAccess {
+public class Face extends Indexed {
 
     public static double det(Point3D u, Point3D v, Point3D w) {
         return    u.getX() * (v.getY() * w.getZ() - v.getZ() * w.getY())
@@ -28,18 +31,64 @@ public class Face extends AbstractList<Vertex> implements RandomAccess {
         return new Point3D(x,y,z);
     }
 
+    public class Points extends AbstractList<Vertex> implements RandomAccess {
+
+        public int size() {
+            return 3;
+        }
+
+        public Vertex get(int i) {
+
+            return switch (i % 3) {
+                case 2, -2 -> v2;
+                case 1, -1 -> v1;
+                default -> v0;
+            };
+
+        }
+
+        public int indexOf(Object o) {
+            if(o==v0)
+                return 0;
+
+            if(o==v1)
+                return 1;
+
+            if(o==v2)
+                return 2;
+
+            return -1;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            return indexOf(o)>=0;
+        }
+
+        @Override
+        public void forEach(Consumer<? super Vertex> action) {
+            action.accept(v0);
+            action.accept(v1);
+            action.accept(v2);
+        }
+
+        @Override
+        public Spliterator<Vertex> spliterator() {
+            return super.spliterator();
+        }
+    }
+
     final Vertex v0, v1, v2;
+
+    final Points points = new Points();
 
     final Point3D nom;
     final double det;
 
-    final int index;
-
     public int color;
 
     public Face(int index, Vertex v0, Vertex v1, Vertex v2) {
-
-        this.index = index;
+        super(index);
 
         this.v0 = v0;
         this.v1 = v1;
@@ -51,18 +100,15 @@ public class Face extends AbstractList<Vertex> implements RandomAccess {
         this.color = index;
     }
 
-    public int size() {
-        return 3;
+    public int indexOf(Vertex v) {
+        int i = points.indexOf(v);
+        if(i<0)
+            throw new IllegalArgumentException("vertex not found");
+        return i;
     }
 
-    public Vertex get(int i) {
-
-        return switch (i % 3) {
-            case 2, -2 -> v2;
-            case 1, -1 -> v1;
-            default -> v0;
-        };
-
+    public Vertex getPoint(int index) {
+        return points.get(index);
     }
 
     // dist from face
@@ -74,25 +120,12 @@ public class Face extends AbstractList<Vertex> implements RandomAccess {
         return dist(v.p0);
     }
 
-    public int indexOf(Object o) {
-        if(o==v0)
-            return 0;
-
-        if(o==v1)
-            return 1;
-
-        if(o==v2)
-            return 2;
-
-        return -1;
-    }
-
     public void connect() {
-        this.forEach(this::connectTo);
+        points.forEach(this::connectTo);
     }
 
     public void cutOff() {
-        this.forEach(this::removeFrom);
+        points.forEach(this::removeFrom);
     }
 
     private void connectTo(Vertex vx) {
@@ -131,18 +164,18 @@ public class Face extends AbstractList<Vertex> implements RandomAccess {
             } else {
 
                 // invisible or missing face, just add an edge
-                Vertex p1 = get(j + 1);
-                Vertex p2 = get(j + 2);
+                Vertex p1 = points.get(j + 1);
+                Vertex p2 = points.get(j + 2);
                 reg.newFace(p1, p2, vx);
             }
         }
     }
 
     public Face getAdjacent(int i) {
-        Vertex p1 = get(i+1);
-        Vertex p2 = get(i+2);
+        Vertex p1 = points.get(i+1);
+        Vertex p2 = points.get(i+2);
         for (Face f : p1.faces) {
-            if(f.contains(p2)) {
+            if(f.points.contains(p2)) {
                 return f;
             }
         }
@@ -151,9 +184,9 @@ public class Face extends AbstractList<Vertex> implements RandomAccess {
     }
 
     public int furthestTo(Point3D p) {
-        double d0 = v0.pyth(p);
-        double d1 = v1.pyth(p);
-        double d2 = v2.pyth(p);
+        double d0 = v0.squareDist(p);
+        double d1 = v1.squareDist(p);
+        double d2 = v2.squareDist(p);
         if(d0>Math.max(d1, d2))
             return 0;
         if(d1>Math.max(d2, d0))
@@ -162,11 +195,11 @@ public class Face extends AbstractList<Vertex> implements RandomAccess {
     }
 
     public String toString() {
-        return String.format("%d:%d:%d:%.2f", v0.index, v1.index, v2.index, det);
+        return String.format("%s (%d:%d:%d)%+.2f", super.toString(), v0.getIndex(), v1.getIndex(), v2.getIndex(), det);
     }
 
     public int hashCode() {
-        return v0.index + 31*(v1.index + 31*v2.index);
+        return v0.getIndex() + 31*(v1.getIndex() + 31*v2.getIndex());
     }
 
     public boolean equals(Object o) {
@@ -175,16 +208,21 @@ public class Face extends AbstractList<Vertex> implements RandomAccess {
 
         if(o instanceof Face of) {
 
-            if(!of.v0.equals(v0))
+            int i0 = of.points.indexOf(v0);
+            if(i0<0)
                 return false;
 
-            if(!of.v1.equals(v1))
-                return false;
+            Vertex v = of.points.get(++i0);
+            if(v1.equals(v))
+                throw new IllegalStateException("equal edges");
 
-            if(!of.v2.equals(v2))
+            /*
+            v = of.points.get(++i0);
+            if(!v2.equals(v))
                 return false;
 
             throw new IllegalStateException("equal faces");
+             */
         }
 
         return false;

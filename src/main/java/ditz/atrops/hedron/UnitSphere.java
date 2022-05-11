@@ -25,51 +25,6 @@ public class UnitSphere extends Geodesic {
             addPoint(points.get());
     }
 
-    public Vertex addPoint(Point3D point) {
-
-        double dist = Double.NEGATIVE_INFINITY;
-        Face faced = null;
-
-        for (Vertex v : points) {
-            if(v.pyth(point)*MAX<1) // reject
-                return null;
-
-            for (Face f : v.faces) {
-                if(f!=faced) { // already found
-                    double d = f.dist(point);
-                    if (faced == null || d > dist || (d==dist && f.det>faced.det)) {
-                        faced = f;
-                        dist = d;
-                    }
-                }
-            }
-        }
-
-        if(faced==null) {
-
-            if(points.size()<4) {
-                Vertex vx = super.addPoint(point);
-
-                // build flat triangles
-                if (points.size() == 3) {
-                    Vertex v0 = points.get(0);
-                    Vertex v1 = points.get(1);
-
-                    faces.newFace(v0, v1, vx);
-                    faces.newFace(v1, v0, vx);
-                }
-                return vx;
-            }
-        } else {
-            Vertex vx = super.addPoint(point);
-            faced.addVertex(vx, faces);
-            return vx;
-        }
-
-        // outside?
-        return null;
-    }
-
     void generate(int n) {
         generate(new RandomPoints(), n);
     }
@@ -87,12 +42,16 @@ public class UnitSphere extends Geodesic {
     public static void main(String ... args) {
 
         UnitSphere s = new UnitSphere();
+        s.addPoints(Cube.UNIT);
+        s.stat().showLine();
+        s.clear();
+        
         RandomPoints rand = new RandomPoints();
 
         for(int i=0; i<30; ++i) {
             s.clear();
             s.addPoints(rand, 127);
-
+            s.stat().showLine();
         }
     }
 }

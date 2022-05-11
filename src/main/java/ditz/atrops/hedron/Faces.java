@@ -11,7 +11,11 @@ public interface Faces {
 
     Face newFace(Vertex v0, Vertex v1, Vertex v2);
 
+    void updateFace(Face face);
+
     Face addFace(Face face);
 
     Face removeFace(Face face);
+
+    boolean addVertex(Vertex v);
 }

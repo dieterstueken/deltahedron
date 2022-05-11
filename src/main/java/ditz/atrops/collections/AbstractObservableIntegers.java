@@ -42,8 +42,9 @@ public abstract class AbstractObservableIntegers extends AbstractObservableArray
         else if(len!=0)
             target.resize(size);
 
-        copyTo(from, target, from, to-from);
-        target.size();
+        len = to-from;
+        if(len>0)
+            copyTo(from, target, from, len);
     }
 
     @Override
