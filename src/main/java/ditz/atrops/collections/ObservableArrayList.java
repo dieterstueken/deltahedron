@@ -27,13 +27,18 @@ abstract public class ObservableArrayList<T> extends AbstractList<T> implements 
         return true;
     }
 
+    @Override
+    public T set(int index, T element) {
+        return elements.set(index, element);
+    }
+
     public T remove(int index) {
         T removed = elements.get(index);
 
         int j = elements.size()-1;
         T tmp = elements.remove(j);
         if(j!=index) {
-            elements.set(index, tmp);
+            set(index, tmp);
             fireChange(true, index, index+1);
         } else {
             fireChange(true, 0, 0);

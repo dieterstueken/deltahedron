@@ -11,47 +11,18 @@ import javafx.scene.shape.TriangleMesh;
  * modified by: $
  * modified on: $
  */
-public class Geodesic implements Faces {
+public class Geodesic  {
 
     final ObservablePoints points = new ObservablePoints();
     final ObservableFaces faces = new ObservableFaces();
-    int faceId = 0;
 
     public void clear() {
         faces.clear();
         points.clear();
-        faceId = 0;
     }
 
     public Vertex addPoint(Point3D point) {
-        int i = points.size();
-        Vertex v = new Vertex(i, point);
-        points.add(v);
-        return v;
-    }
-
-    public void addFace(Face face) {
-        boolean added = faces.add(face);
-        if(!added)
-            throw new IllegalStateException("face already registered");
-        face.connect();
-    }
-
-    public void removeFace(Face face) {
-        if(!faces.remove(face))
-            throw new IllegalStateException("face not registered");
-
-        face.cutOff();
-    }
-
-    @Override
-    public Face newFace(Vertex v0, Vertex v1, Vertex v2) {
-        Face face = new Face(++faceId, v0, v1, v2);
-
-        faces.add(face);
-        face.connect();
-
-        return face;
+        return points.addPoint(point);
     }
 
     public TriangleMesh createMesh() {

@@ -3,10 +3,11 @@ package ditz.atrops.hedron;
 import ditz.atrops.collections.AbstractObservableFloats;
 import ditz.atrops.collections.ObservableArrayList;
 import javafx.collections.ObservableFloatArray;
+import javafx.geometry.Point3D;
 
 public class ObservablePoints extends ObservableArrayList<Vertex> {
 
-    AbstractObservableFloats points = new AbstractObservableFloats() {
+    AbstractObservableFloats values = new AbstractObservableFloats() {
 
         @Override
         public int size() {
@@ -22,11 +23,25 @@ public class ObservablePoints extends ObservableArrayList<Vertex> {
     };
 
     @Override
+    public Vertex set(int index, Vertex element) {
+        return super.set(index, element);
+        // update faces
+    }
+
+    @Override
     protected final void fireChange(boolean sizeChanged, int from, int to) {
-        points.submitChange(sizeChanged, 3*from, 3*to);
+        values.submitChange(sizeChanged, 3*from, 3*to);
     }
 
     public void addTarget(ObservableFloatArray target) {
-        points.addTarget(target);
+        values.addTarget(target);
+    }
+
+    int id = 0;
+
+    public Vertex addPoint(Point3D point) {
+        Vertex v = new Vertex(id++, point);
+        add(v);
+        return v;
     }
 }

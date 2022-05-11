@@ -15,7 +15,6 @@ public class UnitSphere extends Geodesic {
 
     final double MAX = 1L<<32;
 
-
     int addPoints(Collection<Point3D> points) {
         points.forEach(this::addPoint);
         return points.size();
@@ -56,14 +55,14 @@ public class UnitSphere extends Geodesic {
                     Vertex v0 = points.get(0);
                     Vertex v1 = points.get(1);
 
-                    newFace(v0, v1, vx);
-                    newFace(v1, v0, vx);
+                    faces.newFace(v0, v1, vx);
+                    faces.newFace(v1, v0, vx);
                 }
                 return vx;
             }
         } else {
             Vertex vx = super.addPoint(point);
-            faced.addVertex(vx, this);
+            faced.addVertex(vx, faces);
             return vx;
         }
 

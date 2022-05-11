@@ -4,9 +4,9 @@ import ditz.atrops.collections.AbstractObservableIntegers;
 import ditz.atrops.collections.ObservableArrayList;
 import javafx.collections.ObservableIntegerArray;
 
-public class ObservableFaces extends ObservableArrayList<Face> {
+public class ObservableFaces extends ObservableArrayList<Face> implements Faces {
 
-    AbstractObservableIntegers faces = new AbstractObservableIntegers() {
+    AbstractObservableIntegers values = new AbstractObservableIntegers() {
 
         @Override
         public int size() {
@@ -35,10 +35,43 @@ public class ObservableFaces extends ObservableArrayList<Face> {
 
     @Override
     protected final void fireChange(boolean sizeChanged, int from, int to) {
-        faces.submitChange(sizeChanged, 6*from, 6*to);
+        values.submitChange(sizeChanged, 6*from, 6*to);
     }
 
     public void addTarget(ObservableIntegerArray target) {
-        faces.addTarget(target);
+        values.addTarget(target);
+    }
+
+    int id = 0;
+
+    public Face newFace(Vertex v0, Vertex v1, Vertex v2) {
+        Face face = new Face(++id, v0, v1, v2);
+
+        add(face);
+        face.connect();
+
+        return face;
+    }
+
+    @Override
+    public Face addFace(Face face) {
+        boolean added = super.add(face);
+        if(!added)
+            throw new IllegalStateException("face already registered");
+        face.connect();
+        return face;
+    }
+
+    @Override
+    public boolean remove(Object obj) {
+        return obj instanceof Face && removeFace((Face) obj)!=null;
+    }
+
+    public Face removeFace(Face face) {
+        if(!super.remove(face))
+            throw new IllegalStateException("face not registered");
+
+        face.cutOff();
+        return face;
     }
 }
