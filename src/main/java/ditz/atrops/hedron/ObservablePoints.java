@@ -23,12 +23,6 @@ public class ObservablePoints extends ObservableArrayList<Vertex> {
     };
 
     @Override
-    public Vertex set(int index, Vertex element) {
-        return super.set(index, element);
-        // update faces
-    }
-
-    @Override
     protected final void fireChange(boolean sizeChanged, int from, int to) {
         values.submitChange(sizeChanged, 3*from, 3*to);
     }
@@ -37,11 +31,16 @@ public class ObservablePoints extends ObservableArrayList<Vertex> {
         values.addTarget(target);
     }
 
-    int id = 0;
-
     public Vertex addPoint(Point3D point) {
-        Vertex v = new Vertex(id++, point);
+        int id = size();
+        Vertex v = new Vertex(id, point);
         add(v);
         return v;
+    }
+
+    @Override
+    public Vertex set(int index, Vertex element) {
+        return super.set(index, element);
+        // update faces
     }
 }
