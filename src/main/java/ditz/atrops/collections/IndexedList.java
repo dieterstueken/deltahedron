@@ -102,11 +102,10 @@ abstract public class IndexedList<T extends Indexed> extends AbstractList<T> imp
             T t = get(index);
             if (t == obj)
                 return index;
-            else
-                obj.getIndex();
         }
 
-        return super.indexOf(obj);
+        // assume this object can not be a member.
+        return -1;
     }
 
     @Override

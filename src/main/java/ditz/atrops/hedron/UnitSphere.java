@@ -42,15 +42,15 @@ public class UnitSphere extends Geodesic {
     public static void main(String ... args) {
 
         UnitSphere s = new UnitSphere();
-        s.addPoints(Cube.UNIT);
-        s.stat().showLine();
-        s.clear();
+        //s.addPoints(Cube.UNIT);
+        //s.stat().showLine();
+        //s.clear();
         
         RandomPoints rand = new RandomPoints();
 
         for(int i=0; i<30; ++i) {
             s.clear();
-            s.addPoints(rand, 127);
+            s.addPoints(rand, 6);
             s.stat().showLine();
         }
     }

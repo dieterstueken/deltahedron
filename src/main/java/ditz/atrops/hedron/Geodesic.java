@@ -3,7 +3,6 @@ package ditz.atrops.hedron;
 import javafx.geometry.Point3D;
 import javafx.scene.shape.TriangleMesh;
 
-
 /**
  * version:     $
  * created by:  d.stueken
@@ -13,13 +12,13 @@ import javafx.scene.shape.TriangleMesh;
  */
 public class Geodesic  {
 
-    final ObservableFaces faces;
+    final Faces faces;
 
-    final ObservablePoints points;
+    final Points points;
 
     public Geodesic() {
-        faces = new ObservableFaces();
-        points = new ObservablePoints(faces);
+        faces = new Faces();
+        points = new Points(faces);
     }
 
     public void clear() {

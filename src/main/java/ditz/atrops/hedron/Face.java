@@ -24,6 +24,7 @@ public class Face extends Indexed {
     }
 
     public static Point3D nom(Point3D u, Point3D v, Point3D w) {
+        // u x v + v x w + w x u
         double x = u.getY()*v.getZ() - u.getZ()*v.getY() + v.getY()*w.getZ() - v.getZ()*w.getY() + w.getY()*u.getZ() - w.getZ()*u.getY();
         double y = u.getZ()*v.getX() - u.getX()*v.getZ() + v.getZ()*w.getX() - v.getX()*w.getZ() + w.getZ()*u.getX() - w.getX()*u.getZ();
         double z = u.getX()*v.getY() - u.getY()*v.getX() + v.getX()*w.getY() - v.getY()*w.getX() + w.getX()*u.getY() - w.getY()*u.getX();
@@ -138,37 +139,6 @@ public class Face extends Indexed {
         boolean removed = vx.removeFace(this);
         if(!removed)
             throw new IllegalArgumentException("not on vertex");
-    }
-
-    public void addVertex(Vertex vx, Faces reg) {
-
-        double dx = dist(vx);
-        if(dx<0)
-            throw new IllegalArgumentException("add outside vertex");
-
-        // unregister from own vertices.
-        reg.removeFace(this);
-
-        // process adjacent edges / faces.
-        for(int j=0; j<3; ++j) {
-
-            Face f = getAdjacent(j);
-            if(f==null)
-               continue;
-
-            double d = f.dist(vx);
-
-            // face is visible
-            if(d>0) {
-                f.addVertex(vx, reg);
-            } else {
-
-                // invisible or missing face, just add an edge
-                Vertex p1 = points.get(j + 1);
-                Vertex p2 = points.get(j + 2);
-                reg.newFace(p1, p2, vx);
-            }
-        }
     }
 
     public Face getAdjacent(int i) {
