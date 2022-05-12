@@ -17,20 +17,65 @@ public class Vertex extends Indexed {
     public final Point3D p0;
 
     // ordered list of adjacent faces.
-    List<Face> faces = new ArrayList<>();
+    List<Face> faces = new ArrayList<>() {
+
+        /**
+         * Make index cyclic.
+         *
+         * @param index to get
+         * @return index between 0 and size() exclusive.
+         */
+        private int mod(int index) {
+            int size = size();
+            index %= size;
+            if(index<0)
+                index = size - index;
+            return index;
+        }
+
+        @Override
+        public Face get(int index) {
+            return super.get(mod(index));
+        }
+
+        @Override
+        public Face remove(int index) {
+            return super.remove(mod(index));
+        }
+    };
+
+    public Vertex(Point3D p0) {
+        this(-1, p0);
+    }
 
     public Vertex(int i, Point3D p0) {
         super(i);
         this.p0 = p0;
     }
 
-    public Double getCoord(int i) {
+    public double getCoord(int i) {
         // modulo, even for negative values
         return switch (i % 3) {
             case -2, 1 -> p0.getY();
             case -1, 2 -> p0.getZ();
             default -> p0.getX();
         };
+    }
+
+    public Face getFace(int i) {
+        return faces.get(i);
+    }
+
+    /**
+     * Return the vertex of face[i] j positions from own position.
+     * @param i face index.
+     * @param j point index.
+     * @return the vertex at the given position.
+     */
+    public Vertex getVertex(int i, int j) {
+        Face f0 = faces.get(i);
+        int k = f0.indexOf(this);
+        return f0.getPoint(j+k);
     }
 
     public boolean addFace(Face newFace) {
@@ -68,8 +113,14 @@ public class Vertex extends Indexed {
         return faces.add(newFace);
     }
 
-    public int indexOn(Face newFace) {
-        return newFace.indexOf(this);
+    /**
+     * Find if the given face contains this vertex at a given position.
+     *
+     * @param face to inspect.
+     * @return index of this vertex on face or -1 if not related.
+     */
+    public int indexOn(Face face) {
+        return face.indexOf(this);
     }
 
     public boolean removeFace(Face f) {

@@ -12,8 +12,7 @@ import javafx.geometry.Point3D;
 public class Faces extends ObservableFaces {
 
     public Face newFace(Vertex v0, Vertex v1, Vertex v2) {
-        int id = size();
-        Face face = new Face(id, v0, v1, v2);
+        Face face = new Face(size(), v0, v1, v2);
 
         add(face);
         face.connect();
@@ -26,18 +25,11 @@ public class Faces extends ObservableFaces {
         update(index);
     }
 
-
-    public boolean remove(Face face) {
-        if(!super.remove(face))
+    public void removeFace(Face face) {
+        if(!remove(face))
             throw new IllegalStateException("face not registered");
 
         face.cutOff();
-        return true;
-    }
-
-    @Override
-    public boolean remove(Object obj) {
-        return obj instanceof Face && remove((Face) obj);
     }
 
     /**
@@ -55,7 +47,7 @@ public class Faces extends ObservableFaces {
             throw new IllegalArgumentException("face invisible by vertex");
 
         // unregister from its own vertices.
-        remove(face);
+        removeFace(face);
 
         // process adjacent edges / faces.
         for(int j=0; j<3; ++j) {
@@ -102,5 +94,126 @@ public class Faces extends ObservableFaces {
             replace(face, v);
 
         return face != null;
+    }
+
+
+    /**
+     * Remove a given vertex with its faces.
+     * Add new faces to close the gap.
+     *
+     * @param vx to cut off.
+     */
+    void cutOff(Vertex vx) {
+
+        /**
+         * Clip off edges until faces.size() < 3
+         */
+        for(int skip=0; vx.faces.size()>3; skip = nextClipOff(vx, skip)) {
+            if(skip<0)
+                throw new IllegalStateException("no next clip off edge found");
+        }
+
+        if(vx.faces.size()==3) {
+            Vertex v0 = vx.getVertex(0, 1);
+            Vertex v1 = vx.getVertex(1, 1);
+            Vertex v2 = vx.getVertex(2, 1);
+
+            // register new face below vx
+            newFace(v0, v1, v2);
+
+            // remove remaining faces from vertex.
+            while(!vx.faces.isEmpty()) {
+                Face f = vx.faces.get(0);
+                removeFace(f);
+            }
+        }
+    }
+
+    /**
+     * Analyze vertex and find the next edge that can be clipped off.
+     * @param vx vertex to analyze.
+     * @param skip position to start
+     * @return an index clipped, or -1 if failed.
+     */
+    private int nextClipOff(Vertex vx, int skip) {
+
+        int size = vx.faces.size();
+        for(int i=0; i<size; ++i) {
+            int k = i + skip;
+            if(tryClipOff(vx, k)) {
+                return k;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Find if face(index) can be clipped off from a vertex.
+     *
+     * @param vx vertex to analyze.
+     * @param index of face to analyze.
+     *
+     * @return if the action succeeds.
+     */
+    private boolean tryClipOff(Vertex vx, int index) {
+        Face f0 = vx.faces.get(index);
+        int i0 = f0.indexOf(vx);
+        Face f1 = f0.getAdjacent(i0+1);
+        int i1 = f1.indexOf(vx);
+        Vertex v0 = f0.getPoint(i0+1);
+        Vertex v1 = f0.getPoint(i0+2);
+        Vertex v2 = f1.getPoint(i1+2);
+
+        // candidate outer face (unconnected)
+        Face fx = new Face(v0, v1, v2);
+
+        int size = vx.faces.size();
+        for(int i=0; i<size; ++i) {
+            if(i==i0 || i==i1)
+                continue;
+
+            Face fi = vx.getFace(i);
+            int j = fi.indexOf(vx);
+            Vertex vi = fi.getPoint(j+1);
+            double d = fx.dist(vi);
+
+            // aboard action
+            if(d>0)
+                return false;
+        }
+
+        // all passed
+        // remove f0 and f1
+        vx.faces.remove(index);
+        f0.removeFrom(f0.points.get(i0+1));
+        f0.removeFrom(f0.points.get(i0+2));
+        remove(f0);
+
+        if(vx.faces.get(index+1)!=f1)
+            vx.faces.remove(index+1);
+        else {
+            if (!vx.faces.remove(f1))
+                throw new RuntimeException("face not found");
+        }
+
+        f1.removeFrom(f0.points.get(i1+1));
+        f1.removeFrom(f0.points.get(i1+2));
+        remove(f1);
+
+        add(fx);
+        fx.connect();
+
+
+        // create new intermediate inner face
+        Face fy = new Face(v0, v2, vx);
+
+        // replacing f1 and f2
+        vx.faces.add(index, fy);
+        fy.connectTo(v0);
+        fy.connectTo(v1);
+        add(fy);
+
+        return true;
     }
 }

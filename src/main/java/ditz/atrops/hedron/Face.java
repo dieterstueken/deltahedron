@@ -41,11 +41,10 @@ public class Face extends Indexed {
         public Vertex get(int i) {
 
             return switch (i % 3) {
-                case 2, -2 -> v2;
-                case 1, -1 -> v1;
+                case 1, -2 -> v1;
+                case 2, -1 -> v2;
                 default -> v0;
             };
-
         }
 
         public int indexOf(Object o) {
@@ -88,6 +87,10 @@ public class Face extends Indexed {
 
     public int color;
 
+    public Face(Vertex v0, Vertex v1, Vertex v2) {
+        this(-1, v0, v1, v2);
+    }
+
     public Face(int index, Vertex v0, Vertex v1, Vertex v2) {
         super(index);
 
@@ -101,6 +104,12 @@ public class Face extends Indexed {
         this.color = index;
     }
 
+    /**
+     * Find if a given vertex can be found at a given position.
+     *
+     * @param v vertex to inspect.
+     * @return index of this on face or -1 if not related.
+     */
     public int indexOf(Vertex v) {
         int i = points.indexOf(v);
         if(i<0)
@@ -129,13 +138,13 @@ public class Face extends Indexed {
         points.forEach(this::removeFrom);
     }
 
-    private void connectTo(Vertex vx) {
+    void connectTo(Vertex vx) {
         boolean connected = vx.addFace(this);
         if(!connected)
             throw new IllegalArgumentException("connection failed");
     }
 
-    private void removeFrom(Vertex vx) {
+    void removeFrom(Vertex vx) {
         boolean removed = vx.removeFace(this);
         if(!removed)
             throw new IllegalArgumentException("not on vertex");

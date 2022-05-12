@@ -7,7 +7,6 @@ public class Points extends ObservablePoints {
     final Faces faces;
 
     public Points(Faces faces) {
-
         this.faces = faces;
     }
 
@@ -31,19 +30,17 @@ public class Points extends ObservablePoints {
         if (stream().anyMatch(v -> v.squareDist(point) * (1L << 32) < 1))
             return null;
 
-        int id = size();
-        Vertex vx = new Vertex(id, point);
-        add(vx);
+        Vertex vx = new Vertex(point);
+        addVertex(vx);
         return vx;
     }
 
     /**
      * Add a vertex and update faces.
      * @param vx element whose presence in this collection is to be ensured
-     * @return
      */
-    public boolean add(Vertex vx) {
-        super.add(vx);
+    public void addVertex(Vertex vx) {
+        add(vx);
 
         int size = size();
 
@@ -58,12 +55,10 @@ public class Points extends ObservablePoints {
             if(!connected)
                 throw new IllegalStateException("vertex not connected");
         }
-
-        return true;
     }
 
     public boolean remove(Vertex v) {
-        cutOff(v);
+        faces.cutOff(v);
 
         if(!super.remove(v))
             throw new IllegalStateException("face not registered");
@@ -74,23 +69,5 @@ public class Points extends ObservablePoints {
     @Override
     public boolean remove(Object obj) {
         return obj instanceof Vertex && remove((Vertex) obj);
-    }
-
-    void cutOff(Vertex v) {
-        throw new RuntimeException("not implemented");
-
-        /*
-         * get list of outer edges (= faces:opposite points)
-         * while(n>3)
-         *      find adjacent faces, which can be joined without conflicts
-         *          drop both faces and replace by a new outer face
-         *          and a temporary inner face.
-         *
-         * n==3:
-         *      replace all by a new single face.
-         *
-         * n<3:
-         *     drop faces.
-         */
     }
 }
