@@ -151,12 +151,21 @@ public class Face extends Indexed {
     }
 
     public Face getAdjacent(int i) {
+        // get opposite edge
         Vertex p1 = points.get(i+1);
         Vertex p2 = points.get(i+2);
+
         for (Face f : p1.faces) {
-            if(f.points.contains(p2)) {
+
+            int j = f.points.indexOf(p2);
+            if(j<0)
+                continue;
+
+            // verify opposite edge
+            if(f.points.get(j+1)==p1)
                 return f;
-            }
+
+            throw new IllegalStateException("adjacent edge mismatch");
         }
 
         return null;
