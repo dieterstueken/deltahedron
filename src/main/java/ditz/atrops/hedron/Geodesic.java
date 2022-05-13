@@ -30,6 +30,12 @@ public class Geodesic  {
         return points.addPoint(point);
     }
 
+    public Vertex removePoint(int index) {
+        Vertex vertex = points.get(index);
+        points.remove(vertex);
+        return vertex;
+    }
+
     public TriangleMesh createMesh() {
         TriangleMesh mesh = new TriangleMesh();
         points.addTarget(mesh.getPoints());

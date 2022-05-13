@@ -5,9 +5,7 @@ import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.*;
-import javafx.scene.image.Image;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.*;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
@@ -128,18 +126,5 @@ public class View extends Application {
         timer.start();
 
         return view;
-    }
-
-    private static Sphere prepareEarth(float size) {
-        PhongMaterial earthMaterial = new PhongMaterial();
-        earthMaterial.setDiffuseMap(new Image(View.class.getResourceAsStream("/earth-d.jpg")));
-        //earthMaterial.setSelfIlluminationMap(new Image(getClass().getResourceAsStream("/resources/earth/earth-l.jpg")));
-        //earthMaterial.setSpecularMap(new Image(getClass().getResourceAsStream("/resources/earth/earth-s.jpg")));
-        //earthMaterial.setBumpMap(new Image(getClass().getResourceAsStream("/resources/earth/earth-n.jpg")));
-
-        Sphere sphere = new Sphere(size);
-        sphere.setRotationAxis(Rotate.Y_AXIS);
-        sphere.setMaterial(earthMaterial);
-        return sphere;
     }
 }
