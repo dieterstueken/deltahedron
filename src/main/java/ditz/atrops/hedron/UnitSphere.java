@@ -26,7 +26,7 @@ public class UnitSphere extends Geodesic {
     }
 
     void generate(int n) {
-        generate(new RandomPoints(), n);
+        generate(new RandomPoints()::nextPoint, n);
     }
 
     int generate(Supplier<Point3D> points, int n) {
@@ -41,19 +41,10 @@ public class UnitSphere extends Geodesic {
 
     public static void main(String ... args) {
 
-        UnitSphere s = new UnitSphere();
-        s.addPoints(Cube.UNIT);
-        s.stat().showLine();
-
-        s.removePoint(3);
-        s.stat().showLine();
-        s.clear();
-
-        RandomPoints rand = new RandomPoints();
+        RandomSphere s = new RandomSphere(50);
 
         for(int i=0; i<30; ++i) {
-            s.clear();
-            s.addPoints(rand, 6);
+            s.random(30, 50, 10);
             s.stat().showLine();
         }
     }

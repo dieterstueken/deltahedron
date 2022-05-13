@@ -3,7 +3,6 @@ package ditz.atrops.hedron;
 import javafx.geometry.Point3D;
 
 import java.util.Random;
-import java.util.function.Supplier;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,30 +10,28 @@ import java.util.function.Supplier;
  * Date: 18.04.22
  * Time: 20:20
  */
-public class RandomPoints implements Supplier<Point3D> {
-
-    final Random rand;
+public class RandomPoints extends Random {
 
     public RandomPoints() {
-        rand = new Random();
+        super();
     }
 
     public RandomPoints(long seed) {
-        rand = new Random(seed);
+        super(seed);
     }
 
-    public Point3D get() {
+    public Point3D nextPoint() {
         Point3D point=null;
 
         while(point==null) {
-            double x = rand.nextGaussian();
-            double y = rand.nextGaussian();
+            double x = nextGaussian();
+            double y = nextGaussian();
 
             // avoid poles
             if(x==0 && y==0)
                 continue;
 
-            double z = rand.nextGaussian();
+            double z = nextGaussian();
 
             double r = Math.sqrt(x * x + y * y + z * z);
             point = new Point3D(x/r,y/r,z/r);

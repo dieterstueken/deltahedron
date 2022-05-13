@@ -138,6 +138,18 @@ public class Face extends Indexed {
         points.forEach(this::removeFrom);
     }
 
+    /**
+     * cut off an indexed edge.
+     * @param index of vertex tu disconnect.
+     */
+    public void cutOff(int index) {
+        removeFrom(points.get(index));
+    }
+
+    public void cutOffEdge(int index) {
+        cutOff(index+1);
+        cutOff(index+2);
+    }
     void connectTo(Vertex vx) {
         boolean connected = vx.addFace(this);
         if(!connected)
@@ -151,12 +163,16 @@ public class Face extends Indexed {
     }
 
     public Face getAdjacent(int i) {
-        // get opposite edge
+        // get opposite edge p1:p2
         Vertex p1 = points.get(i+1);
         Vertex p2 = points.get(i+2);
 
         for (Face f : p1.faces) {
+            // not me
+            if(f==this)
+                continue;
 
+            // expect p2:p1
             int j = f.points.indexOf(p2);
             if(j<0)
                 continue;
@@ -165,7 +181,8 @@ public class Face extends Indexed {
             if(f.points.get(j+1)==p1)
                 return f;
 
-            throw new IllegalStateException("adjacent edge mismatch");
+            // a third face on edge p1:p2 ?
+            throw new IllegalStateException("adjacent face mismatch");
         }
 
         return null;

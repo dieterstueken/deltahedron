@@ -141,7 +141,7 @@ public class Faces extends ObservableFaces {
         for(int i=0; i<size; ++i) {
             int k = i + skip;
             if(tryClipOff(vx, k)) {
-                return k;
+                return k+1;
             }
         }
 
@@ -159,8 +159,10 @@ public class Faces extends ObservableFaces {
     private boolean tryClipOff(Vertex vx, int index) {
         Face f0 = vx.faces.get(index);
         int i0 = f0.indexOf(vx);
+
         Face f1 = f0.getAdjacent(i0+1);
         int i1 = f1.indexOf(vx);
+
         Vertex v0 = f0.getPoint(i0+1);
         Vertex v1 = f0.getPoint(i0+2);
         Vertex v2 = f1.getPoint(i1+2);
@@ -170,12 +172,20 @@ public class Faces extends ObservableFaces {
 
         int size = vx.faces.size();
         for(int i=0; i<size; ++i) {
-            if(i==i0 || i==i1)
+            
+            // seek 3 points beyond v0 v1 v2
+            Face fi = vx.getFace(i+3);
+
+            // not relevant
+            if(fi==f0 || fi== f1)
                 continue;
 
-            Face fi = vx.getFace(i);
             int j = fi.indexOf(vx);
             Vertex vi = fi.getPoint(j+1);
+
+            if(vi==v2)
+                continue;
+
             double d = fx.dist(vi);
 
             // aboard action
@@ -183,27 +193,26 @@ public class Faces extends ObservableFaces {
                 return false;
         }
 
-        // all passed
-        // remove f0 and f1
+        // all passed, drop f1 and f2
+
         vx.faces.remove(index);
-        f0.removeFrom(f0.points.get(i0+1));
-        f0.removeFrom(f0.points.get(i0+2));
+        f0.cutOffEdge(i0);
         remove(f0);
 
-        if(vx.faces.get(index+1)!=f1)
-            vx.faces.remove(index+1);
+        // expect f1 at deleted f0 position.
+        if(vx.faces.get(index)==f1)
+            vx.faces.remove(index);
         else {
             if (!vx.faces.remove(f1))
                 throw new RuntimeException("face not found");
         }
 
-        f1.removeFrom(f0.points.get(i1+1));
-        f1.removeFrom(f0.points.get(i1+2));
+        // disconnet from remaining points.
+        f1.cutOffEdge(i1);
         remove(f1);
 
         add(fx);
         fx.connect();
-
 
         // create new intermediate inner face
         Face fy = new Face(v0, v2, vx);
@@ -211,7 +220,7 @@ public class Faces extends ObservableFaces {
         // replacing f1 and f2
         vx.faces.add(index, fy);
         fy.connectTo(v0);
-        fy.connectTo(v1);
+        fy.connectTo(v2);
         add(fy);
 
         return true;

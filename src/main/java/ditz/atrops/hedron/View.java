@@ -20,7 +20,7 @@ import javafx.stage.Stage;
  */
 public class View extends Application {
 
-    UnitSphere sphere = new UnitSphere();
+    RandomSphere sphere = new RandomSphere(4);
 
     private static final float WIDTH = 600;
     private static final float HEIGHT = 500;
@@ -83,7 +83,6 @@ public class View extends Application {
     }
 
     private Node prepareHedron() {
-        sphere.generate(4);
 
         Palette palette = Palette.DEFAULT;
 
@@ -114,12 +113,13 @@ public class View extends Application {
             @Override
             public void handle(long now) {
                 if(now>until) {
-                    sphere.addPoint(rand.get());
+
+                    sphere.random(30, 50, 10);
                     System.out.print(sphere.points.size());
                     System.out.print(" ");
                     sphere.stat().showLine();
 
-                    until += 1000;
+                    until += 3000;
                 }
             }
         };
