@@ -36,23 +36,31 @@ abstract public class IndexedList<T extends Indexed> extends AbstractList<T> imp
      */
     @Override
     public boolean add(T element) {
-        int i = elements.size();
+        if(element.getIndex()>=0)
+            throw new IllegalStateException("new face has a valid index");
+
+        int index = elements.size();
         elements.add(element);
-        element.setIndex(i);
+        element.setIndex(index);
         sizeChanged();
         return true;
     }
 
     /**
-     * replace some element from the list by another element.
-     * @param index index of the element to replace
-     * @param element element to be stored at the specified position
-     * @return the element replaced.
+     * replace some face from the list by another face.
+     * @param index index of the face to replace
+     * @param face face to be stored at the specified position
+     * @return the face replaced.
      */
     @Override
-    public T set(int index, T element) {
-        element.setIndex(index);
-        T replaced = elements.set(index, element);
+    public T set(int index, T face) {
+
+        if(face.getIndex()>=0)
+            throw new IllegalStateException("new face has a valid index");
+
+        face.setIndex(index);
+        T replaced = elements.set(index, face);
+
         replaced.setIndex(-1);
         update(index);
         return replaced;

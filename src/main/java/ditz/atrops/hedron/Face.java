@@ -130,11 +130,11 @@ public class Face extends Indexed {
         return dist(v.p0);
     }
 
-    public void connect() {
+    void connect() {
         points.forEach(this::connectTo);
     }
 
-    public void cutOff() {
+    void cutOff() {
         points.forEach(this::removeFrom);
     }
 

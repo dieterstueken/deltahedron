@@ -48,8 +48,8 @@ public class Points extends ObservablePoints {
             Vertex v0 = get(0);
             Vertex v1 = get(1);
 
-            faces.newFace(v0, v1, vx);
-            faces.newFace(v1, v0, vx);
+            faces.addFace(v0, v1, vx);
+            faces.addFace(v1, v0, vx);
         } else if(size>3) {
             boolean connected = faces.addVertex(vx);
             if(!connected)
