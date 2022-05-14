@@ -9,15 +9,25 @@ public class Indexed {
     }
 
     protected Indexed() {
-        this(0);
+        this(-1);
     }
 
     public int getIndex() {
         return index;
     }
 
-    public void setIndex(int index) {
+    public boolean setIndex(int index) {
+        boolean wasValid = isValid();
         this.index = index;
+        return wasValid;
+    }
+
+    public boolean isValid() {
+        return index>=0;
+    }
+
+    public boolean invalidate() {
+        return setIndex(-1);
     }
 
     public String getName() {

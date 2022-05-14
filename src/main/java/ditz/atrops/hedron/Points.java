@@ -10,18 +10,49 @@ public class Points extends ObservablePoints {
         this.faces = faces;
     }
 
+    /**
+     * Add a new vertex and create new faces to connect.
+     * @param vertex to add.
+     * @return
+     */
     @Override
-    public Vertex set(int index, Vertex vertex) {
-        /**
-         * element possibly gets a new index:
-         * update all related faces.
-         */
-        try {
-            return super.set(index, vertex);
-        } finally {
-            if(index!=vertex.getIndex())
-                vertex.faces.forEach(faces::updateFace);
-        }
+    public boolean add(Vertex vertex) {
+        super.add(vertex);
+        connect(vertex);
+        return true;
+    }
+
+    /**
+     * Remove a vertex and close the gap with new faces.
+     * @param index the index of the element to be removed
+     * @return the vertex removed.
+     */
+    @Override
+    public Vertex remove(int index) {
+
+        // drop edges first
+        faces.cutOff(get(index));
+
+        return super.remove(index);
+    }
+
+    /**
+     * Setup a new index of a vertex.
+     * If the vertex existed before, update the faces, too.
+     *
+     * @param vertex to index.
+     * @param index to set.
+     * @return
+     */
+    @Override
+    protected boolean setup(Vertex vertex, int index) {
+        boolean setup = super.setup(vertex, index);
+
+        // update all faces
+        if(setup)
+            vertex.faces.forEach(faces::update);
+
+        return setup;
     }
 
     public Vertex addPoint(Point3D point) {
@@ -31,16 +62,18 @@ public class Points extends ObservablePoints {
             return null;
 
         Vertex vx = new Vertex(point);
-        addVertex(vx);
+        add(vx);
         return vx;
     }
 
     /**
-     * Add a vertex and update faces.
+     * Connect a new vertex to all visible faces.
+     * Hidden faces are removed.
+     * If this is the 3rd vertex, two flat dummy faces are created.
+     *
      * @param vx element whose presence in this collection is to be ensured
      */
-    public void addVertex(Vertex vx) {
-        add(vx);
+    private void connect(Vertex vx) {
 
         int size = size();
 
@@ -55,19 +88,5 @@ public class Points extends ObservablePoints {
             if(!connected)
                 throw new IllegalStateException("vertex not connected");
         }
-    }
-
-    public boolean remove(Vertex v) {
-        faces.cutOff(v);
-
-        if(!super.remove(v))
-            throw new IllegalStateException("face not registered");
-
-        return true;
-    }
-
-    @Override
-    public boolean remove(Object obj) {
-        return obj instanceof Vertex && remove((Vertex) obj);
     }
 }

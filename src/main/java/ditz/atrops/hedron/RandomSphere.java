@@ -35,4 +35,14 @@ public class RandomSphere extends UnitSphere {
             removePoint(n);
         }
     }
+
+    public static void main(String ... args) {
+
+        RandomSphere s = new RandomSphere(50);
+
+        for(int i=0; i<30; ++i) {
+            s.random(30, 50, 10);
+            s.stat().showLine();
+        }
+    }
 }

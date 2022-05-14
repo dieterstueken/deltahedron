@@ -4,7 +4,6 @@ import ditz.atrops.collections.Indexed;
 import javafx.geometry.Point3D;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,7 +16,7 @@ public class Vertex extends Indexed {
     public final Point3D p0;
 
     // ordered list of adjacent faces.
-    List<Face> faces = new ArrayList<>() {
+    ArrayList<Face> faces = new ArrayList<>() {
 
         /**
          * Make index cyclic.
@@ -35,7 +34,14 @@ public class Vertex extends Indexed {
 
         @Override
         public Face get(int index) {
-            return super.get(mod(index));
+            Face face = super.get(mod(index));
+            assert face.isValid() : "invalid face on vertex";
+            return face;
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            return super.remove(o);
         }
 
         @Override
@@ -79,6 +85,8 @@ public class Vertex extends Indexed {
     }
 
     public boolean addFace(Face newFace) {
+
+        assert newFace.isValid() : "add invalid face to vertex";
 
         if(faces.isEmpty())
             return faces.add(newFace);

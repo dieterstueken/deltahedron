@@ -1,6 +1,5 @@
 package ditz.atrops.hedron;
 
-import javafx.collections.ObservableIntegerArray;
 import javafx.geometry.Point3D;
 
 /**
@@ -12,47 +11,38 @@ import javafx.geometry.Point3D;
  */
 public class Faces extends ObservableFaces {
 
+    /**
+     * Add a new face and connect its vertices.
+     *
+     * @param face to add.
+     * @return true;
+     */
     @Override
     public boolean add(Face face) {
-
-        if(!super.add(face))
-            throw new IllegalStateException("face rejected");
-
+        super.add(face);
         face.connect();
-
         return true;
     }
 
+    /**
+     * Remove a face and disconnect its vertices.
+     *
+     * @param index the index of the element to be removed
+     * @return the face removed.
+     */
     @Override
-    public Face set(int index, Face face) {
-        Face removed = super.set(index, face);
-        face.connect();
+    public Face remove(int index) {
 
-        removed.cutOff();
-        return removed;
+        // drop edges first
+        get(index).cutOff();
+
+        return super.remove(index);
     }
 
     public Face addFace(Vertex v0, Vertex v1, Vertex v2) {
-        Face face = new Face(size(), v0, v1, v2);
+        Face face = new Face(v0, v1, v2);
         add(face);
         return face;
-    }
-
-    public void updateFace(Face face) {
-        int index = indexOf(face);
-        update(index);
-    }
-
-    @Override
-    public void addTarget(ObservableIntegerArray target) {
-        super.addTarget(target);
-    }
-
-    public void remove(Face face) {
-        if(!super.remove(face))
-            throw new IllegalStateException("face not registered");
-
-        face.cutOff();
     }
 
     /**
@@ -111,14 +101,22 @@ public class Faces extends ObservableFaces {
         return faced;
     }
 
-    public boolean addVertex(Vertex v) {
-        Face face = nextTo(v.p0);
+    /**
+     * Remove all faces visible from vertex and build new faces.
+     * This is called by each vertex added.
+     *
+     * @param vertex added.
+     * @return if any visible faces are removed.
+     */
+    boolean addVertex(Vertex vertex) {
+
+        // find the nearest face.
+        Face face = nextTo(vertex.p0);
         if(face!=null)
-            replace(face, v);
+            replace(face, vertex);
 
         return face != null;
     }
-
 
     /**
      * Remove a given vertex together with its faces.
@@ -136,24 +134,25 @@ public class Faces extends ObservableFaces {
                 throw new IllegalStateException("no next clip off edge found");
         }
 
-        Face close = null;
+        // possible face to close the last gap
+        Face closing = null;
 
         if(vx.faces.size()==3) {
             Vertex v0 = vx.getVertex(0, 1);
             Vertex v1 = vx.getVertex(1, 1);
             Vertex v2 = vx.getVertex(2, 1);
 
-            close = new Face(v0, v1, v2);
+            closing = new Face(v0, v1, v2);
         }
 
-        // remove remaining faces from vertex.
+        // remove remaining faces from the vertex.
         while(!vx.faces.isEmpty()) {
             Face f = vx.faces.get(0);
             remove(f);
         }
 
-        if(close!=null) {
-            add(close);
+        if(closing!=null) {
+            add(closing);
         }
     }
 
@@ -223,13 +222,13 @@ public class Faces extends ObservableFaces {
 
         // all passed, drop f1 and f2
 
+        // disconnect f0 from vx
         vx.faces.remove(index);
         f0.cutOffEdge(i0);
-        remove(f0);
 
-        // possibly wrap
-        if(index==vx.faces.size())
-            index = 0;
+        // already disconnected.
+        i0 = f0.getIndex();
+        super.remove(i0);
 
         // expect f1 at deleted f0 position.
         if(vx.faces.get(index)==f1)
@@ -237,29 +236,34 @@ public class Faces extends ObservableFaces {
         else {
             // unexpected face position
             // try to find real position
-            index =vx.faces.indexOf(f1);
+            index = vx.faces.indexOf(f1);
             if (index<0)
                 throw new RuntimeException("face not found");
         }
 
-        // disconnect f1 from remaining points.
+        // disconnect f1 from remaining edges.
         f1.cutOffEdge(i1);
 
         // replace f1 by fx at same position.
         i1 = f1.getIndex();
-        set(i1, fx);
+        // setup index
+        fx.setIndex(i1);
+        elements.set(i1, fx);
+        update(i1);
+        f1.invalidate();
+        update(i1);
 
-        // create new intermediate inner face
+        // create a new intermediate inner face
         // the following is equivalent to addFace(v0, v1, v2);
         Face fy = new Face(v0, v2, vx);
+
+        // manual connect
+        super.add(fy);
 
         // replacing f0 and f1 at index by new face fy
         vx.faces.add(index, fy);
         fy.connectTo(v0);
         fy.connectTo(v2);
-
-        // already connected
-        super.add(fy);
 
         return true;
     }

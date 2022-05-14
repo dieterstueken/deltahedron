@@ -26,14 +26,17 @@ public class Geodesic  {
         points.clear();
     }
 
+    public Vertex addPoint(double x, double y, double z) {
+        final Point3D point = new Point3D(x, y, z);
+        return points.addPoint(point);
+    }
+
     public Vertex addPoint(Point3D point) {
         return points.addPoint(point);
     }
 
     public Vertex removePoint(int index) {
-        Vertex vertex = points.get(index);
-        points.remove(vertex);
-        return vertex;
+        return points.remove(index);
     }
 
     public TriangleMesh createMesh() {

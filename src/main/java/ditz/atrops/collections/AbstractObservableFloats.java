@@ -39,8 +39,10 @@ public abstract class AbstractObservableFloats extends AbstractObservableArray<O
         int len = size - target.size();
         if(len>0)
             target.addAll(this, target.size(), len);
-        else if(len!=0)
+        else if(len!=0) {
+            target.ensureCapacity((size|1023)+1);
             target.resize(size);
+        }
 
         copyTo(from, target, from, to-from);
     }

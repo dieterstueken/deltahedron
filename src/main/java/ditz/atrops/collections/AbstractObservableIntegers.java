@@ -39,8 +39,10 @@ public abstract class AbstractObservableIntegers extends AbstractObservableArray
         int len = size - target.size();
         if(len>0)
             target.addAll(this, target.size(), len);
-        else if(len!=0)
+        else if(len!=0) {
+            target.ensureCapacity((size|1023)+1);
             target.resize(size);
+        }
 
         len = to-from;
         if(len>0)
