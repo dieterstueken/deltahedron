@@ -104,6 +104,19 @@ public class Face extends Indexed {
         this.color = index;
     }
 
+    public boolean verify() {
+        if(!super.verify())
+            return false;
+
+        for (Vertex point : points) {
+            assert point.isValid();
+            if(!point.isValid())
+                return false;
+        }
+
+        return true;
+    }
+
     /**
      * Find if a given vertex can be found at a given position.
      *
@@ -150,6 +163,17 @@ public class Face extends Indexed {
         cutOff(index+1);
         cutOff(index+2);
     }
+
+    public boolean isCutOff() {
+
+        for (Vertex vx : points) {
+            if(vx.faces.contains(this))
+                return false;
+        }
+
+        return true;
+    }
+
     void connectTo(Vertex vx) {
         boolean connected = vx.addFace(this);
         if(!connected)

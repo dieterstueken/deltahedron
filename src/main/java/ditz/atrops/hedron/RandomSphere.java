@@ -2,7 +2,7 @@ package ditz.atrops.hedron;
 
 public class RandomSphere extends UnitSphere {
 
-    RandomPoints rand = new RandomPoints();
+    RandomPoints rand = new RandomPoints(47);
 
     RandomSphere(int initial) {
         generate(rand::nextPoint, initial);

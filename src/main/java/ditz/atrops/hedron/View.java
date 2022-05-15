@@ -119,7 +119,7 @@ public class View extends Application {
                     System.out.print(" ");
                     sphere.stat().showLine();
 
-                    until += 3000;
+                    until = now + 300000000L;
                 }
             }
         };

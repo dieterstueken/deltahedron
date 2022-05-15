@@ -37,12 +37,11 @@ public abstract class AbstractObservableIntegers extends AbstractObservableArray
     protected void updateTarget(ObservableIntegerArray target, int from, int to) {
         int size = size();
         int len = size - target.size();
-        if(len>0)
-            target.addAll(this, target.size(), len);
-        else if(len!=0) {
+        if(len>0) {
             target.ensureCapacity((size|1023)+1);
+            target.addAll(this, target.size(), len);
+        } else if(len<0)
             target.resize(size);
-        }
 
         len = to-from;
         if(len>0)

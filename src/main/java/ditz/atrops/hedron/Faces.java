@@ -21,6 +21,9 @@ public class Faces extends ObservableFaces {
     public boolean add(Face face) {
         super.add(face);
         face.connect();
+
+        assert verify();
+
         return true;
     }
 
@@ -37,6 +40,45 @@ public class Faces extends ObservableFaces {
         get(index).cutOff();
 
         return super.remove(index);
+    }
+
+    @Override
+    protected boolean setup(Face face, int index) {
+        if(face.color<0)
+            face.color = index%6;
+
+        return super.setup(face, index);
+    }
+
+    public void updateColor(int i) {
+        Face face = get(i);
+        int color = face.color;
+        face.color = (color+1)%6;
+        fireChange(i);
+    }
+
+    protected boolean invalidate(Face face) {
+        assert !face.isValid() || face.isCutOff();
+        return super.invalidate(face);
+    }
+
+    boolean connectivity(Face face) {
+        boolean verified =  face.verify();
+
+        if(size()>3) {
+
+            for (Vertex vertex : face.points) {
+
+                if(vertex.faces.size()<3) {
+                    verified = false;
+                    break;
+                }
+
+                assert verified : "too few faces on vertex";
+            }
+        }
+
+        return verified;
     }
 
     public Face addFace(Vertex v0, Vertex v1, Vertex v2) {
@@ -151,9 +193,24 @@ public class Faces extends ObservableFaces {
             remove(f);
         }
 
+        assert isCutOff(vx);
+        assert verify();
+
         if(closing!=null) {
             add(closing);
         }
+    }
+
+    boolean isCutOff(Vertex vx) {
+
+        for (Face face : this) {
+            if(face.points.contains(vx)) {
+                assert false : "still connected";
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -184,6 +241,9 @@ public class Faces extends ObservableFaces {
      * @return if the action succeeds.
      */
     private boolean tryClipOff(Vertex vx, int index) {
+
+        index = vx.faces.mod(index);
+
         Face f0 = vx.faces.get(index);
         int i0 = f0.indexOf(vx);
 
@@ -222,18 +282,18 @@ public class Faces extends ObservableFaces {
 
         // all passed, drop f1 and f2
 
-        // disconnect f0 from vx
+        // disconnect f0 from vx and normalize index again
         vx.faces.remove(index);
+        index = vx.faces.mod(index);
+
         f0.cutOffEdge(i0);
 
         // already disconnected.
         i0 = f0.getIndex();
         super.remove(i0);
 
-        // expect f1 at deleted f0 position.
-        if(vx.faces.get(index)==f1)
-            vx.faces.remove(index);
-        else {
+        // index should now to f1 which was adjacent to f0
+        if(vx.faces.get(index)!=f1) {
             // unexpected face position
             // try to find real position
             index = vx.faces.indexOf(f1);
@@ -241,17 +301,21 @@ public class Faces extends ObservableFaces {
                 throw new RuntimeException("face not found");
         }
 
+        vx.faces.remove(index);
+        index = vx.faces.mod(index);
+
         // disconnect f1 from remaining edges.
         f1.cutOffEdge(i1);
 
         // replace f1 by fx at same position.
         i1 = f1.getIndex();
-        // setup index
+        // setup index and color
         fx.setIndex(i1);
+        fx.color = i1;
         elements.set(i1, fx);
         update(i1);
         f1.invalidate();
-        update(i1);
+        fx.connect();
 
         // create a new intermediate inner face
         // the following is equivalent to addFace(v0, v1, v2);
@@ -260,10 +324,14 @@ public class Faces extends ObservableFaces {
         // manual connect
         super.add(fy);
 
+        assert vx.verify();
+
         // replacing f0 and f1 at index by new face fy
         vx.faces.add(index, fy);
         fy.connectTo(v0);
         fy.connectTo(v2);
+
+        assert verify(this::connectivity);
 
         return true;
     }

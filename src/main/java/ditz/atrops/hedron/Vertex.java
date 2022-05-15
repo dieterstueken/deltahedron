@@ -16,7 +16,9 @@ public class Vertex extends Indexed {
     public final Point3D p0;
 
     // ordered list of adjacent faces.
-    ArrayList<Face> faces = new ArrayList<>() {
+    Faces faces = new Faces();
+
+    static class Faces extends ArrayList<Face> {
 
         /**
          * Make index cyclic.
@@ -24,7 +26,7 @@ public class Vertex extends Indexed {
          * @param index to get
          * @return index between 0 and size() exclusive.
          */
-        private int mod(int index) {
+        int mod(int index) {
             int size = size();
             index %= size;
             if(index<0)
@@ -33,10 +35,29 @@ public class Vertex extends Indexed {
         }
 
         @Override
+        public void add(int index, Face element) {
+            // append at size is allowed.
+            // else convert to cyclic index;
+            if(index!=size())
+                index = mod(index);
+
+            super.add(index, element);
+        }
+
+        @Override
         public Face get(int index) {
             Face face = super.get(mod(index));
             assert face.isValid() : "invalid face on vertex";
             return face;
+        }
+
+        boolean isValid() {
+            for (Face face : this) {
+                if(face.getIndex()<0)
+                    return false;
+            }
+
+            return true;
         }
 
         @Override
@@ -57,6 +78,19 @@ public class Vertex extends Indexed {
     public Vertex(int i, Point3D p0) {
         super(i);
         this.p0 = p0;
+    }
+
+    public boolean verify() {
+        if(!super.verify())
+            return false;
+
+        for (Face face : faces) {
+            assert face.isValid();
+            if(!face.isValid())
+                return false;
+        }
+
+        return true;
     }
 
     public double getCoord(int i) {

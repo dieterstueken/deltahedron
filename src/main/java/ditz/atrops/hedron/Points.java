@@ -2,6 +2,8 @@ package ditz.atrops.hedron;
 
 import javafx.geometry.Point3D;
 
+import java.util.function.Predicate;
+
 public class Points extends ObservablePoints {
 
     final Faces faces;
@@ -19,6 +21,9 @@ public class Points extends ObservablePoints {
     public boolean add(Vertex vertex) {
         super.add(vertex);
         connect(vertex);
+
+        assert verify(this::connectivity);
+
         return true;
     }
 
@@ -31,9 +36,65 @@ public class Points extends ObservablePoints {
     public Vertex remove(int index) {
 
         // drop edges first
-        faces.cutOff(get(index));
+        final Vertex vx = get(index);
 
-        return super.remove(index);
+        faces.cutOff(vx);
+
+        Vertex removed = super.remove(index);
+
+        assert verify(this::connectivity);
+
+        return removed;
+    }
+
+    @Override
+    public boolean verify(Predicate<? super Vertex> verify) {
+
+        faces.verify(this::validateFace);
+
+        return super.verify(verify);
+    }
+
+    protected boolean validateFace(Face face) {
+        boolean verified =  face.verify();
+
+        if(size()>3) {
+
+            for (Vertex vertex : face.points) {
+
+                if(vertex.isValid() && get(vertex.getIndex())==vertex) {
+
+                    if (vertex.faces.size() < 3) {
+                        verified = false;
+                        break;
+                    }
+
+                    assert verified : "too few faces on vertex";
+
+                } else
+                    verified = false;
+
+                assert verified : "invalid vertex point";
+            }
+        }
+
+        return verified;
+    }
+
+    protected boolean invalidate(Vertex vertex) {
+        assert !vertex.isValid() || vertex.faces.isEmpty();
+        return super.invalidate(vertex);
+    }
+
+    protected boolean connectivity(Vertex vertex) {
+        boolean verified =  vertex.verify();
+
+        if(size()>3 && vertex.faces.size()<3) {
+            assert false : "too few faces on vertex";
+            verified = false;
+        }
+
+        return verified;
     }
 
     /**
@@ -49,8 +110,7 @@ public class Points extends ObservablePoints {
         boolean setup = super.setup(vertex, index);
 
         // update all faces
-        if(setup)
-            vertex.faces.forEach(faces::update);
+        vertex.faces.forEach(faces::update);
 
         return setup;
     }
@@ -63,6 +123,9 @@ public class Points extends ObservablePoints {
 
         Vertex vx = new Vertex(point);
         add(vx);
+
+        assert verify(this::connectivity);
+
         return vx;
     }
 

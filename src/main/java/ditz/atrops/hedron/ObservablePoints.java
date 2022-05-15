@@ -4,6 +4,8 @@ import ditz.atrops.collections.AbstractObservableFloats;
 import ditz.atrops.collections.IndexedList;
 import javafx.collections.ObservableFloatArray;
 
+import java.util.function.Predicate;
+
 public class ObservablePoints extends IndexedList<Vertex> {
 
     AbstractObservableFloats values = new AbstractObservableFloats() {
@@ -28,5 +30,36 @@ public class ObservablePoints extends IndexedList<Vertex> {
 
     public void addTarget(ObservableFloatArray target) {
         values.addTarget(target);
+        this.target = target;
+    }
+
+    private ObservableFloatArray target = null;
+
+    @Override
+    public boolean verify(Predicate<? super Vertex> verify) {
+
+        assert verifyTarget();
+
+        return super.verify(verify);
+    }
+
+    private boolean verifyTarget() {
+        if(target!=null) {
+            int size = values.size();
+            if(target.size() != size) {
+                assert false : "size invalid";
+                return false;
+            }
+
+
+            for(int i=0; i<size; ++i) {
+                if(target.get(i) != values.get(i)) {
+                    assert false : "value invalid";
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

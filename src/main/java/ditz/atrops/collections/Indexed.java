@@ -26,6 +26,11 @@ public class Indexed {
         return index>=0;
     }
 
+    public boolean verify() {
+        assert isValid();
+        return isValid();
+    }
+
     public boolean invalidate() {
         return setIndex(-1);
     }

@@ -25,10 +25,6 @@ public class UnitSphere extends Geodesic {
             addPoint(points.get());
     }
 
-    void generate(int n) {
-        generate(new RandomPoints()::nextPoint, n);
-    }
-
     int generate(Supplier<Point3D> points, int n) {
         assert n>3 : "too few points";
 

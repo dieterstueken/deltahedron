@@ -3,27 +3,38 @@ package ditz.atrops.collections;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.RandomAccess;
+import java.util.function.Predicate;
 
 abstract public class IndexedList<T extends Indexed> extends AbstractList<T> implements RandomAccess {
 
     protected final ArrayList<T> elements = new ArrayList<>();
 
     @Override
-    public T get(int index) {
-        T element = elements.get(index);
-
-        assert index == element.getIndex() : "invalid element index";
-
-        return element;
-    }
-
-    @Override
     public int size() {
         return elements.size();
     }
 
-    public void verify() {
-        forEach(Indexed::isValid);
+    @Override
+    public T get(int index) {
+        T element = elements.get(index);
+
+        assert element.verify();
+
+        return element;
+    }
+
+    public boolean verify(Predicate<? super T> verify) {
+
+        for (T element : this) {
+            if (!verify.test(element))
+                return false;
+        }
+
+        return true;
+    }
+
+    public boolean verify() {
+        return verify(T::verify);
     }
 
     abstract protected void fireChange(boolean sizeChanged, int from, int to);
@@ -75,7 +86,12 @@ abstract public class IndexedList<T extends Indexed> extends AbstractList<T> imp
         elements.add(element);
         setup(element, index);
 
+        assert element.verify();
+
         sizeChanged();
+
+        assert verify();
+
         return true;
     }
 
@@ -89,6 +105,8 @@ abstract public class IndexedList<T extends Indexed> extends AbstractList<T> imp
      */
     public T remove(final int index) {
 
+        assert verify();
+
         // pop off tail element
         int j = elements.size()-1;
         T element = elements.remove(j);
@@ -98,18 +116,17 @@ abstract public class IndexedList<T extends Indexed> extends AbstractList<T> imp
             // This this element has to be retained.
             // Push it back to the list to replace the element to delete.
             T replaced = elements.set(index, element);
-            update(index);
             setup(element, index);
+            update(index);
             element = replaced;
         }
+        // propagate size check.
+        sizeChanged();
 
         // invalidate removed element
         invalidate(element);
 
-        verify();
-
-        // propagate size check.
-        sizeChanged();
+        assert verify();
 
         return element;
     }
