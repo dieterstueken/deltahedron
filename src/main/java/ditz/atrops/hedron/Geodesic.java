@@ -39,6 +39,15 @@ public class Geodesic  {
         return points.remove(index);
     }
 
+    public Vertex removePoint(Vertex vertex) {
+        int index = vertex.getIndex();
+
+        if(vertex != points.get(index))
+            throw new IllegalArgumentException("vertex not member");
+
+        return points.remove(index);
+    }
+
     public TriangleMesh createMesh() {
         TriangleMesh mesh = new TriangleMesh();
         points.addTarget(mesh.getPoints());
