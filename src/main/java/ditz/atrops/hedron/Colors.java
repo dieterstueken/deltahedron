@@ -1,5 +1,14 @@
 package ditz.atrops.hedron;
 
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
+
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 /**
  * Created by IntelliJ IDEA.
  * User: stueken
@@ -14,8 +23,8 @@ public class Colors {
      * @param m modulo periode.
      * @return modulo index.
      */
-    static int mod(float f, int m) {
-        return (int) (f+m*Math.floor(f/m));
+    static int mod(double f, int m) {
+        return (int) (f-m*Math.floor(f/m));
     }
 
     /**
@@ -29,31 +38,38 @@ public class Colors {
      *   |0/1|2/3|4/5|
      *   +---+---+---+
      *
-     * @param x coordinate
-     * @param y coordinate
+     * @param xi coordinate
+     * @param yi coordinate
      * @return cell index.
      */
 
-    static int icell(float x, float y) {
-        int i = mod(x, 6);
-        int j = mod(y, 3);
-        return 2*(i%3) + 6*(j%3) + (i-j)&1;
+    static int icell(double xi, double yi) {
+        int i = mod(xi, 3);
+        int j = mod(yi, 3);
+        int k = mod(xi-yi, 2);
+
+        int ic = 6*j + 2*i + k%2;
+
+        return ic;
     }
 
     /**
      * Colored basic cell.
      *
      *  +---+---+---+
-     *  |1 1|3 3 3/2|
-     *  |1/0 0 0|1 1|
-     *  |0 0 0/1 1 1|
+     *  |3 3 3 2 2 2|
+     *  |2 3 3 3 1 1|
+     *  |0 0 2 2 2 3|
      *  +---+---+---+
      */
 
     static final char[] ICOLOR = {
-            1,1,3,3,3,2,
-            1,0,0,0,1,1,
-            0,0,0,1,1,1};
+            0,0,2,2,2,3,
+            3,3,3,2,2,2,
+            2,3,3,3,1,1,
+    };
+
+    static final List<Color> COLORS = List.of(Color.WHITE, Color.RED, Color.GREEN, Color.BLUE);
 
     /**
      * Four basic cell form a 12x12 super cell with permuted colors.
@@ -62,43 +78,86 @@ public class Colors {
      *  |0 |3 |
      */
 
-    int icolor(float x, float y) {
-        int color = ICOLOR[icell(x,y)];
+    static int icolor(double xi, double yi) {
+        int ic = icell(xi, yi);
+        int color = ICOLOR[ic];
 
-        int i = mod(x,12)/6;
-        int j = mod(y,12)/6;
+        int i = mod(xi,12)/6;
+        int j = mod(yi,12)/6;
         int k = 3*(i%2) + 2*(j%2);
 
         color += k;
-        color &= 4;
 
-        return color;
+        return color & 3;
     }
 
     /**
      *
      *  Transformation:
      *
-     *  rotation by 15° with:
+     *  share by 15° with:
      *
-     *  s = sin(15°) = (√6 - √2)/4
-     *  c = cos(15°) = (√6 + √2)/4
-     *  t = s/c = 2 + √3
+     *  t = tan(15°) = 2 - √3
      *
-     *  triangle edge from (1,1) -> (5,3) with length 3√2
-     *  matches to (x,y): (0.5, 0,5) -> (n-0.5, t*(n-0.5)) with length (n-1)/c
      *
-     *  x-0.5                       | c  -s|  i-1
-     *         = (n-1) / (c * 3√2)  |      |
-     *  y-0.5                       | s  c |  j-1
+     *  x               | 2t-1 2-t |  i
+     *         = n / 6  |          |
+     *  y               | 2-t 2t-1 |  j
      *
      * inverted:
-     *  i-1                 | c*s  s*s |  x - 0.5
-     *         = 3√2/(n-1)  |          |
-     *  j-1                 |-s*c  c*c |  y - 0.5
-     *
-     *      with: c*s = 1/4
-     *      and   c*c = (2-√3)/4
+     *  i                  |  2-t  1-2t |  x
+     *       = 2/(1-t^2)/n |           |
+     *  j                  | 1-2t  2-t |  y
      *
      */
+
+
+    static final double A , B, C;
+
+    static {
+        double t = 2 - Math.sqrt(3);
+        A = 2-t;
+        B = 1-2*t;
+        C = 2/(1-t*t);
+    }
+
+    Color color(float x, float y) {
+
+        double xi = C * (x*A + y*B) / size;
+        double yi = C * (x*B + y*A) / size;
+
+        int icol = icolor(xi, yi);
+
+        return COLORS.get(icol);
+    }
+    
+    private final int size;
+
+    private final WritableImage image;
+
+    public Colors(int size) {
+
+        this.size = size;
+
+        size += 1;
+        
+        this.image = new WritableImage(size, size);
+
+        PixelWriter pw  = image.getPixelWriter();
+
+        for(int j=0; j<size; ++j) {
+
+            for(int i=0; i<size; ++i) {
+                Color color = color(i,j);
+                pw.setColor(i, j, color);
+            }
+        }
+    }
+
+    public static void main(String ... args) throws IOException {
+
+        Colors colors = new Colors(512);
+
+        ImageIO.write(javafx.embed.swing.SwingFXUtils.fromFXImage(colors.image, null), "png", new File("palette.png"));
+    }
 }

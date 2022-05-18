@@ -31,9 +31,6 @@ public class Palette {
         WritableImage img = new WritableImage(size, 1);
         PixelWriter pw  = img.getPixelWriter();
 
-        for(int i=0; i<size; ++i) {
-            pw.setColor(i, 0, palette.get(i));
-        }
 
         return img;
     }
