@@ -79,8 +79,26 @@ public class Colors {
      *
      *  Transformation:
      *
+     *  rotation by 15° with:
      *
+     *  s = sin(15°) = (√6 - √2)/4
+     *  c = cos(15°) = (√6 + √2)/4
+     *  t = s/c = 2 + √3
      *
+     *  triangle edge from (1,1) -> (5,3) with length 3√2
+     *  matches to (x,y): (0.5, 0,5) -> (n-0.5, t*(n-0.5)) with length (n-1)/c
+     *
+     *  x-0.5                       | c  -s|  i-1
+     *         = (n-1) / (c * 3√2)  |      |
+     *  y-0.5                       | s  c |  j-1
+     *
+     * inverted:
+     *  i-1                 | c*s  s*s |  x - 0.5
+     *         = 3√2/(n-1)  |          |
+     *  j-1                 |-s*c  c*c |  y - 0.5
+     *
+     *      with: c*s = 1/4
+     *      and   c*c = (2-√3)/4
      *
      */
 }
