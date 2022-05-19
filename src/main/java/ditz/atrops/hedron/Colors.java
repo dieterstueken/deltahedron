@@ -27,6 +27,10 @@ public class Colors {
         return (int) (f-m*Math.floor(f/m));
     }
 
+    static double fmod(double f, int m) {
+        return (f-m*Math.floor(f/m));
+    }
+
     /**
      * Return a cell index for a 3x3 grid.
      * Each cell is divided into an upper and a lower cell.
@@ -44,9 +48,12 @@ public class Colors {
      */
 
     static int icell(double xi, double yi) {
-        int i = mod(xi, 3);
-        int j = mod(yi, 3);
-        int k = mod(xi-yi, 2);
+        xi = fmod(xi, 3);
+        yi = fmod(yi, 3);
+
+        int i = (int) xi;
+        int j = (int) yi;
+        int k = mod(yi-xi, 2);
 
         int ic = 6*j + 2*i + k%2;
 
@@ -56,11 +63,14 @@ public class Colors {
     /**
      * Colored basic cell.
      *
-     *  +---+---+---+
-     *  |3 3 3 2 2 2|
-     *  |2 3 3 3 1 1|
-     *  |0 0 2 2 2 3|
-     *  +---+---+---+
+     *  +-----------+-----------+
+     *  |0 1 1 1 2 2 2 3 3 3 0 0|
+     *  |1 1 1 0 0 0 3 3 3 2 2 2|
+     *  |3 3 0 0 0 1 1 1 2 2 2 3|
+     *  |3 2 2 2 1 1 1 0 0 0 3 3|
+     *  |2 2 2 3 3 3 0 0 0 1 1 1|
+     *  |0 0 3 3 3 2 2 2 1 1 1 0|
+     *  +-----------+-----------+
      */
 
     static final char[] ICOLOR = {
@@ -82,8 +92,8 @@ public class Colors {
         int ic = icell(xi, yi);
         int color = ICOLOR[ic];
 
-        int i = mod(xi,12)/6;
-        int j = mod(yi,12)/6;
+        int i = mod(xi,6)/3;
+        int j = mod(yi,6)/3;
         int k = 3*(i%2) + 2*(j%2);
 
         color += k;
@@ -112,16 +122,16 @@ public class Colors {
      */
 
 
-    static final double A , B, C;
+    static final double T, A , B, C;
 
     static {
-        double t = 2 - Math.sqrt(3);
-        A = 2-t;
-        B = 1-2*t;
-        C = 2/(1-t*t);
+        T = 2 - Math.sqrt(3);
+        A = 2- T;
+        B = 1-2* T;
+        C = 2/(1- T * T);
     }
 
-    Color color(float x, float y) {
+    Color color(double x, double y) {
 
         double xi = C * (x*A + y*B) / size;
         double yi = C * (x*B + y*A) / size;
@@ -139,7 +149,7 @@ public class Colors {
 
         this.size = size;
 
-        size += 1;
+        size *= 7;
         
         this.image = new WritableImage(size, size);
 
@@ -156,7 +166,7 @@ public class Colors {
 
     public static void main(String ... args) throws IOException {
 
-        Colors colors = new Colors(512);
+        Colors colors = new Colors(500);
 
         ImageIO.write(javafx.embed.swing.SwingFXUtils.fromFXImage(colors.image, null), "png", new File("palette.png"));
     }
