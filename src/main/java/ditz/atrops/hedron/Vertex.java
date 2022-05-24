@@ -1,6 +1,5 @@
 package ditz.atrops.hedron;
 
-import ditz.atrops.collections.Indexed;
 import javafx.geometry.Point3D;
 
 import java.util.ArrayList;
@@ -11,7 +10,7 @@ import java.util.ArrayList;
  * Date: 16.04.22
  * Time: 18:45
  */
-public class Vertex extends Indexed {
+public class Vertex extends Colored {
 
     public final Point3D p0;
 

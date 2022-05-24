@@ -1,6 +1,5 @@
 package ditz.atrops.hedron;
 
-import ditz.atrops.collections.Indexed;
 import javafx.geometry.Point3D;
 
 import java.util.AbstractList;
@@ -15,7 +14,7 @@ import java.util.function.Consumer;
  * modified by: $
  * modified on: $
  */
-public class Face extends Indexed {
+public class Face extends Colored {
 
     public static double det(Point3D u, Point3D v, Point3D w) {
         return    u.getX() * (v.getY() * w.getZ() - v.getZ() * w.getY())
@@ -84,8 +83,6 @@ public class Face extends Indexed {
 
     final Point3D nom;
     final double det;
-
-    public int color;
 
     public Face(Vertex v0, Vertex v1, Vertex v2) {
         this(-1, v0, v1, v2);
