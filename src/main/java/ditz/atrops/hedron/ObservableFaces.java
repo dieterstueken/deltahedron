@@ -28,7 +28,7 @@ public class ObservableFaces extends IndexedList<Face> {
                 case 2 -> f.v1.getIndex();
                 case 4 -> f.v2.getIndex();
                 // 1 3 5 common color index
-                default -> getTex(f, index/2);
+                default -> getTex(f, (index % 6)/2);
             };
         }
     };

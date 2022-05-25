@@ -15,7 +15,7 @@ public class UnitSphere extends Geodesic {
 
     final double MAX = 1L<<32;
 
-    int addPoints(Collection<Point3D> points) {
+    int addPoints(Collection<? extends Point3D> points) {
         points.forEach(this::addPoint);
         return points.size();
     }

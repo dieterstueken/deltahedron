@@ -3,6 +3,7 @@ package ditz.atrops.hedron;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -135,9 +136,9 @@ public class Colors {
 
     static final List<Color> COLORS = List.of(Color.YELLOW, Color.RED, Color.GREEN, Color.BLUE);
 
-    private final int size;
+    final int size;
 
-    private final WritableImage image;
+    final WritableImage image;
 
     final float[] coords;
 
@@ -202,37 +203,41 @@ public class Colors {
         float y2 = (1+t)/2+ x0;
 
         float[] coords = {
-                x0, x0, // 0 : 0
-                y2, y2, // 1 : 1
-                x2, y1, // 2 : 4
-                y0, x1, // 3 : 5
-                y1, x2, // 4 : 2
-                x1, y0};// 5 : 3
+                x0, x0, // R: 0 : 0
+                y2, y2, // B: 1 : 1
+                x2, y1, // R: 2 : 4
+                y0, x1, // G: 3 : 5
+                y1, x2, // R: 4 : 2
+                x1, y0};// Y: 5 : 3
 
         return coords;
     }
 
     public int getTex(Face face, int index) {
-        int c0 = face.points.get(index).color;
+        int m = 1<<(face.points.get(index).color%4);
 
-        switch(c0%4) {
-            case 0: return 5;
-            case 2: return 6;
-            case 3: return 1;
+        switch(m) {
+            case 1: return 5;
+            case 4: return 3;
+            case 8: return 1;
         }
 
-        int c1 = face.points.get(index+1).color%4;
-        int c2 = face.points.get(index+2).color%4;
+        // m==2 red: other colors are relevant to choose either 0, 2 or 4.
+        m = 1<<(face.points.get(index+1).color%4);
+        m|= 1<<(face.points.get(index+2).color%4);
 
-        int m = (1<<c1) | (1<<c2);
+        return switch (m) {
+            case 4, 5 -> 0;
+            case 1, 9 -> 2;
+            case 8, 12 -> 4;
+            default -> 0;
+        };
+    }
 
-        if((m&5)!=0)  // Y|G
-            return 0;
-
-        if((m&9)!=0)  // Y|B
-            return 2;
-
-        return 4;    // G|B | R
+    PhongMaterial getMaterial() {
+        PhongMaterial mat = new PhongMaterial();
+        mat.setDiffuseMap(image);
+        return mat;
     }
 
     public static void main(String ... args) throws IOException {

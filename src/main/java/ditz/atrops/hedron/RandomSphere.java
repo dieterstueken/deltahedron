@@ -1,5 +1,8 @@
 package ditz.atrops.hedron;
 
+import javafx.geometry.Point3D;
+
+import java.util.Collection;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -10,6 +13,10 @@ public class RandomSphere extends UnitSphere {
 
     RandomSphere(int initial) {
         generate(rand::nextPoint, initial);
+    }
+
+    RandomSphere(Collection<? extends Point3D> points) {
+        addPoints(points);
     }
 
     RandomSphere() {

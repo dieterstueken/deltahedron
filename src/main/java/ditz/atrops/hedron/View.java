@@ -6,7 +6,9 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.*;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.shape.*;
+import javafx.scene.shape.MeshView;
+import javafx.scene.shape.ObservableFaceArray;
+import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
@@ -20,7 +22,7 @@ import javafx.stage.Stage;
  */
 public class View extends Application {
 
-    RandomSphere sphere = new RandomSphere(4);
+    RandomSphere sphere = new RandomSphere(Cube.UNIT);
 
     private static final float WIDTH = 600;
     private static final float HEIGHT = 500;
@@ -84,17 +86,8 @@ public class View extends Application {
 
     private Node prepareHedron() {
 
-        Palette palette = Palette.DEFAULT;
+        MeshView view = sphere.createMesh();
 
-        //s.addPoints(Cube.UNIT);
-        TriangleMesh mesh = sphere.createMesh();
-        mesh.getTexCoords().setAll(palette.getTextPoints());
-
-        MeshView view = new MeshView(mesh);
-
-        view.setMaterial(palette.createMaterial());
-        view.setDrawMode(DrawMode.FILL);
-        view.setCullFace(CullFace.NONE);
         view.setOnMouseClicked(e->{
             int selectedFace = e.getPickResult().getIntersectedFace();
             if(selectedFace>0) {
@@ -105,7 +98,15 @@ public class View extends Application {
             }
         });
 
-        AnimationTimer timer = new AnimationTimer() {
+
+        //AnimationTimer timer = animation();
+        //timer.start();
+
+        return view;
+    }
+
+    private AnimationTimer animation() {
+        return new AnimationTimer() {
             final RandomPoints rand = new RandomPoints();
 
             long until = 0;
@@ -123,8 +124,5 @@ public class View extends Application {
                 }
             }
         };
-        timer.start();
-
-        return view;
     }
 }
