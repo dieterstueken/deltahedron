@@ -97,8 +97,6 @@ public class Face extends Colored {
 
         this.det = det(v0.p0, v1.p0, v2.p0);
         this.nom = nom(v0.p0, v1.p0, v2.p0);
-
-        this.color = index;
     }
 
     public boolean verify() {

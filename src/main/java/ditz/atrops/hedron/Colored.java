@@ -8,6 +8,7 @@ public class Colored extends Indexed {
 
     public Colored(int index) {
         super(index);
+        this.color = Math.max(index, 0);
     }
 
     public Colored() {

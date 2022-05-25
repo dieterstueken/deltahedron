@@ -121,7 +121,7 @@ public class Points extends ObservablePoints {
         if (stream().anyMatch(v -> v.squareDist(point) * (1L << 32) < 1))
             return null;
 
-        Vertex vx = new Vertex(point);
+        Vertex vx = new Vertex(size(), point);
         add(vx);
 
         assert verify(this::connectivity);

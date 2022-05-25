@@ -8,6 +8,10 @@ import java.util.function.Predicate;
 
 public class ObservableFaces extends IndexedList<Face> {
 
+    public int getTex(Face f, int index) {
+        return f.color%6;
+    }
+
     AbstractObservableIntegers values = new AbstractObservableIntegers() {
 
         @Override
@@ -18,20 +22,16 @@ public class ObservableFaces extends IndexedList<Face> {
         @Override
         public int get(int index) {
             Face f = ObservableFaces.super.get(index/6);
-
-            if(f.color<0)
-                f.color += 0;
             
             return switch (index % 6) {
                 case 0 -> f.v0.getIndex();
                 case 2 -> f.v1.getIndex();
                 case 4 -> f.v2.getIndex();
                 // 1 3 5 common color index
-                default -> 3 + (f.color)%6;
+                default -> getTex(f, index/2);
             };
         }
     };
-
 
     @Override
     protected final void fireChange(boolean sizeChanged, int from, int to) {

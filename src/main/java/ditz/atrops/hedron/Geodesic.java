@@ -12,12 +12,21 @@ import javafx.scene.shape.TriangleMesh;
  */
 public class Geodesic  {
 
+    final Colors colors;
+
     final Faces faces;
 
     final Points points;
 
     public Geodesic() {
-        faces = new Faces();
+        colors = new Colors(256);
+        faces = new Faces() {
+            @Override
+            public int getTex(Face f, int index) {
+                return colors.getTex(f, index);
+            }
+        };
+
         points = new Points(faces);
     }
 
@@ -50,6 +59,8 @@ public class Geodesic  {
 
     public TriangleMesh createMesh() {
         TriangleMesh mesh = new TriangleMesh();
+
+        mesh.getTexCoords().setAll(colors.coords);
         points.addTarget(mesh.getPoints());
         faces.addTarget(mesh.getFaces());
         return mesh;
