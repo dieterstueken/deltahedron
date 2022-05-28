@@ -55,28 +55,27 @@ public class Colors {
         int j = mod(yi, 6);
         int i = mod(2*xi, 12)/2;
         int k = mod(yi-xi, 2) + i/3 + j/3;
-
+                                                                   
         int ic = 12*j + 2*i + k%2;
         return CELL[ic];
     }
 
-    static final int D = 32;
+    static final int D = 3*4;
 
     static boolean edge(double xi, double yi) {
-        double d = fmod(2*xi-yi+1, 3);
+        double d = 6*fmod(2*yi, 2)-8;
 
-        if(D*Math.abs(d-1)<1)
+        if(D*d*d<1)
             return true;
 
+        d = 6*fmod(2*xi, 2)-4;
 
-        d = fmod(xi-2*yi+1, 3);
-
-        if(D*Math.abs(d-1)<1)
+        if(D*d*d<1)
             return true;
 
-        d = fmod((yi+xi)+1, 3);
+        d = 6*fmod(2*(yi-xi), 2)-4;
 
-        if(D*Math.abs(d-1)<1)
+        if(D*d*d<1)
             return true;
 
         return false;
@@ -144,7 +143,7 @@ public class Colors {
 
     public Colors(int size) {
 
-        this.size = size-1;
+        this.size = size/3;
 
         this.coords = coords(size);
 
@@ -158,7 +157,7 @@ public class Colors {
 
                 if(icol>3)
                     color = Color.BLACK;
-                else if(hits(i,j))
+                else //if(hits(i,j))
                     color = COLORS.get(icol%4);
 
                 pw.setColor(i, j, color);

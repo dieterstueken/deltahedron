@@ -22,7 +22,7 @@ import javafx.stage.Stage;
  */
 public class View extends Application {
 
-    RandomSphere sphere = new RandomSphere(Cube.UNIT);
+    RandomSphere sphere = new RandomSphere(Tetraeder.UNIT);
 
     private static final float WIDTH = 600;
     private static final float HEIGHT = 500;
