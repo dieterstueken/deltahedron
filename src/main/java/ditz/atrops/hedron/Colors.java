@@ -31,10 +31,16 @@ public class Colors {
     static double fmod(double f, int m) {
         return (f-m*Math.floor(f/m));
     }
+
+    static final List<Color> COLORS = List.of(
+            Color.YELLOW,
+            Color.PALEVIOLETRED,
+            Color.FORESTGREEN,
+            Color.AQUA);
+
     /**
-     * Colored basic cell.
+     * Colored 12x6 basic cell.
      */
-     
      static final short[] CELL = {
              1,1,0,0,0,2,2,2,3,3,3,1,
              2,2,2,0,0,0,1,1,1,3,3,3,
@@ -60,32 +66,33 @@ public class Colors {
         return CELL[ic];
     }
 
-    static final int D = 3*4;
+    static double edist(double f, int n) {
+        double d = fmod((6*f+n)/3, 2)-1;
+        return d*d;
+    }
+
+
+    // line width
+    static final int D = 3*128;
 
     static boolean edge(double xi, double yi) {
-        double d = 6*fmod(2*yi, 2)-8;
+        return  D*edist(xi, 1)<1
+             || D*edist(yi, -1)<1
+             || D*edist(yi-xi, 1)<1;
+    }
 
-        if(D*d*d<1)
-            return true;
-
-        d = 6*fmod(2*xi, 2)-4;
-
-        if(D*d*d<1)
-            return true;
-
-        d = 6*fmod(2*(yi-xi), 2)-4;
-
-        if(D*d*d<1)
-            return true;
-
-        return false;
+    static boolean dot(double xi, double yi) {
+        double dx = edist(xi, 1);
+        double dy = edist(yi, -1);
+        double dz = edist(yi-xi, 1);
+        return 3*(dx+dy+dz) < 1;
     }
 
     /**
      *
      *  Transformation:
      *
-     *  share by 15° with:
+     *  sheare by 15° with:
      *
      *  t = tan(15°) = 2 - √3
      *
@@ -108,32 +115,41 @@ public class Colors {
         T = 2 - Math.sqrt(3);
         A = 2 - T;
         B = 1 - 2*T;
-        C = 2/(1- T * T);
+        //C = 2/(1- T * T);
+        C = 2/(3*T);
     }
 
     int icol(double x, double y) {
-        x += 0.5;
-        y += 0.5;
 
         double xi = C * (x*A + y*B) / size;
         double yi = C * (x*B + y*A) / size;
 
+        //xi -= 1.0/6;
+        //xi -= 1.6*A/12;
+        //yi -= 1.6*B/12;
+
         int icol = icell(xi, yi);
 
         if(edge(xi, yi))
-            icol += 4;
+            icol |= 4;
+
+        if(dot(xi, yi))
+            icol |= 8;
 
         return icol;
     }
 
-    int debug(double x, double y) {
-       
-        double g = 6.0/size;
+    Color color(double x, double y) {
+        int icol = icol(x, y);
+        
+        if((icol&8)!=0)
+            return COLORS.get(icol%4);
 
-        return icell( g*x, g*y);
+        if((icol&4)!=0)
+            return Color.BLACK;
+
+        return Color.WHITE;
     }
-
-    static final List<Color> COLORS = List.of(Color.YELLOW, Color.RED, Color.GREEN, Color.BLUE);
 
     final int size;
 
@@ -143,7 +159,7 @@ public class Colors {
 
     public Colors(int size) {
 
-        this.size = size/3;
+        this.size = size;
 
         this.coords = coords(size);
 
@@ -152,32 +168,10 @@ public class Colors {
 
         for(int j=0; j<size; ++j) {
             for(int i=0; i<size; ++i) {
-                int icol = icol(i, j);
-                Color color = Color.WHITE;
-
-                if(icol>3)
-                    color = Color.BLACK;
-                else //if(hits(i,j))
-                    color = COLORS.get(icol%4);
-
+                Color color = color(i, j);
                 pw.setColor(i, j, color);
             }
         }
-    }
-
-    boolean hits(double x, double y) {
-        x += 0.5;
-        y += 0.5;
-
-        for(int i=0; i<12; i += 2) {
-            double dx = x/size - coords[i];
-            double dy = y/size - coords[i+1];
-            double dd = dx*dx+dy*dy;
-            if(256*dd<1)
-                return true;
-        }
-
-        return false;
     }
 
     /**
@@ -241,7 +235,7 @@ public class Colors {
 
     public static void main(String ... args) throws IOException {
 
-        Colors colors = new Colors(512);
+        Colors colors = new Colors(600);
 
         ImageIO.write(javafx.embed.swing.SwingFXUtils.fromFXImage(colors.image, null), "png", new File("palette.png"));
     }
