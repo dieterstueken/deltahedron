@@ -96,18 +96,7 @@ public class Colors {
      *
      *  t = tan(15°) = 2 - √3
      *
-     *
-     *  x               | 2t-1 2-t |  i
-     *         = n / 6  |          |
-     *  y               | 2-t 2t-1 |  j
-     *
-     * inverted:
-     *  i                  |  2-t  1-2t |  x
-     *       = 2/(1-t^2)/n |           |
-     *  j                  | 1-2t  2-t |  y
-     *
      */
-
 
     static final double T, A , B, C;
 
@@ -116,17 +105,26 @@ public class Colors {
         A = 2 - T;
         B = 1 - 2*T;
         //C = 2/(1- T * T);
-        C = 2/(3*T);
+        C = 2/T;  // 3C
     }
 
-    int icol(double x, double y) {
+    /**
+     * input coords within range [0,1].
+     *
+     * (0.5, 0.5) -> (7/3, 8/3)
+     *
+     * @param x coord
+     * @param y coord
+     * @return color mask
+     */
+    static int icol(double x, double y) {
+        // shift to center
+        x -= 0.5;
+        y -= 0.5;
 
-        double xi = C * (x*A + y*B) / size;
-        double yi = C * (x*B + y*A) / size;
-
-        double d = 3*(1-T)/T;
-        xi += (7-d)/3;
-        yi += (8-d)/3;
+        // center maps to 7/3, 8/3
+        double xi = (C * (x*A + y*B) + 7)/3;
+        double yi = (C * (x*B + y*A) + 8)/3;
 
         int icol = icell(xi, yi);
 
@@ -139,8 +137,8 @@ public class Colors {
         return icol;
     }
 
-    Color color(double x, double y) {
-        int icol = icol(x+0.5, y+0.5);
+    Color color(int ix, int iy) {
+        int icol = icol((ix+0.5)/size, (iy+0.5)/size);
 
         if((icol&4)!=0)
             return Color.BLACK;
@@ -178,34 +176,63 @@ public class Colors {
         }
     }
 
+    static final double G = 2*T/(1-T*T);
+
     /**
-     *    x0    x1  x2
-     * x0 0---------+ x0
-     *    |     5   | y0
-     * x1 | 3       2 y1
-     *    |      1  | y2
-     * x2 +---4-----+ x2
-     *
-     * @return array of coords
+     * Return the x coordinate for a grid coordinate(i,j).
+     * The y coordinate is just the mirror with swapped (y,x)
+     * @param xi grid coordinate
+     * @param yi grid coordinate
+     * @return x coordiante for (i, j);
      */
-    private static float[] coords(int size) {
+    static double xcoord(double xi, double yi) {
 
-        float x0 = 0.5F/size;
-        float x1 = 0.5F;
-        float x2 = (size-0.5F)/size;
+        xi -= 7;
+        yi -= 8;
 
-        float t = (float) T;
-        float y0 = t/2 + x0;
-        float y1 = t + x0;
-        float y2 = (1+t)/2+ x0;
+        double x = G * (A*xi - B*yi) + 0.5;
+        //double y = G * (A*yi - B*xi) + 0.5;
 
-        float[] coords = {
-                x0, x0, // R: 0 : 0
-                y2, y2, // B: 1 : 1
-                x2, y1, // R: 2 : 4
-                y0, x1, // G: 3 : 5
-                y1, x2, // R: 4 : 2
-                x1, y0};// Y: 5 : 3
+        return x;
+    }
+
+    private static byte[] ICOR = {
+                1,2, 1,4, 1,7,
+              1,5, 4,5, 7,5, 10,5,
+            1,8, 4,8, 7,8, 10,8, 13,8,
+             4,11, 7,11, 10,11, 13,11,
+                4,14, 7,14, 19,14
+    };
+
+    private static short[] triplets = {
+            0,4,1, // GYR
+
+            3,4,0, // GGY
+            4,5,1, // GYY
+            1,5,2, // YYY
+            5,6,2, // YRY
+
+            3,4,8, // GGG
+            4,5,9, // GYB
+            5,6,10, // YRB
+
+
+
+    }
+
+    /**
+     * Create 19 coordinate pairs.
+     * @return texture coordinates.
+     */
+    private static float[] coords() {
+        int n = ICOR.length;
+        float[] coords = new float[n];
+        for(int k=0; k<n; k += 2) {
+            int i = ICOR[k];
+            int j = ICOR[k+1];
+            coords[i] = (float) xcoord(i, j);
+            coords[i+1] = (float) xcoord(j, i);
+        }
 
         return coords;
     }
