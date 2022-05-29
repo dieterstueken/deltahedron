@@ -1,4 +1,4 @@
-package ditz.atrops.hedron;
+package ditz.atrops.hedron.colors;
 
 import ditz.atrops.collections.AbstractObservableFloats;
 import javafx.scene.image.Image;

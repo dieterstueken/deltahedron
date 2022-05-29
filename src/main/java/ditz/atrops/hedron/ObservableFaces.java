@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 public class ObservableFaces extends IndexedList<Face> {
 
     public int getTex(Face f, int index) {
-        return f.color%6;
+        return f.getColor()%6;
     }
 
     AbstractObservableIntegers values = new AbstractObservableIntegers() {

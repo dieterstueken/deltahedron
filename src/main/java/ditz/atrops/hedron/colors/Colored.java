@@ -1,10 +1,10 @@
-package ditz.atrops.hedron;
+package ditz.atrops.hedron.colors;
 
 import ditz.atrops.collections.Indexed;
 
 public class Colored extends Indexed {
 
-    int color = -1;
+    public int color = -1;
 
     public Colored(int index) {
         super(index);

@@ -1,5 +1,6 @@
 package ditz.atrops.hedron;
 
+import ditz.atrops.hedron.colors.Colors;
 import javafx.geometry.Point3D;
 import javafx.scene.shape.CullFace;
 import javafx.scene.shape.DrawMode;
@@ -22,12 +23,11 @@ public class Geodesic {
     final Points points;
 
     public Geodesic() {
-        colors = new Colors(3*128);
+        colors = new Colors(3*256);
         faces = new Faces() {
             @Override
             public int getTex(Face f, int index) {
-                int itex = colors.getTex(f, index);
-                return itex;
+                return colors.getTex(f, index);
             }
         };
 
@@ -64,7 +64,7 @@ public class Geodesic {
     public MeshView createMesh() {
         TriangleMesh mesh = new TriangleMesh();
 
-        mesh.getTexCoords().setAll(colors.coords);
+        mesh.getTexCoords().setAll(colors.coords());
         points.addTarget(mesh.getPoints());
         faces.addTarget(mesh.getFaces());
 

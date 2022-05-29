@@ -1,5 +1,6 @@
 package ditz.atrops.hedron;
 
+import ditz.atrops.hedron.colors.Colored;
 import javafx.geometry.Point3D;
 
 import java.util.ArrayList;

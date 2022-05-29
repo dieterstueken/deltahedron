@@ -1,5 +1,6 @@
 package ditz.atrops.hedron;
 
+import ditz.atrops.hedron.colors.Colored;
 import javafx.geometry.Point3D;
 
 import java.util.AbstractList;
@@ -79,7 +80,7 @@ public class Face extends Colored {
 
     final Vertex v0, v1, v2;
 
-    final Points points = new Points();
+    public final Points points = new Points();
 
     final Point3D nom;
     final double det;
@@ -127,6 +128,10 @@ public class Face extends Colored {
 
     public Vertex getPoint(int index) {
         return points.get(index);
+    }
+
+    public int getColor(int index) {
+        return getPoint(index).getColor()%4;
     }
 
     // dist from face
