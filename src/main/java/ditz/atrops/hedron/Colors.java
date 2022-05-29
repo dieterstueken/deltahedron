@@ -85,7 +85,7 @@ public class Colors {
         double dx = edist(xi, 1);
         double dy = edist(yi, -1);
         double dz = edist(yi-xi, 1);
-        return 3*(dx+dy+dz) < 1;
+        return 3*(dx+dy+dz) < 2;
     }
 
     /**
@@ -124,9 +124,9 @@ public class Colors {
         double xi = C * (x*A + y*B) / size;
         double yi = C * (x*B + y*A) / size;
 
-        //xi -= 1.0/6;
-        //xi -= 1.6*A/12;
-        //yi -= 1.6*B/12;
+        double d = 3*(1-T)/T;
+        xi += (7-d)/3;
+        yi += (8-d)/3;
 
         int icol = icell(xi, yi);
 
@@ -140,13 +140,13 @@ public class Colors {
     }
 
     Color color(double x, double y) {
-        int icol = icol(x, y);
-        
-        if((icol&8)!=0)
-            return COLORS.get(icol%4);
+        int icol = icol(x+0.5, y+0.5);
 
         if((icol&4)!=0)
             return Color.BLACK;
+
+        if((icol&8)!=0)
+            return COLORS.get(icol%4);
 
         return Color.WHITE;
     }
@@ -161,10 +161,14 @@ public class Colors {
 
         this.size = size;
 
+        ++size;
+
         this.coords = coords(size);
 
         this.image = new WritableImage(size, size);
         PixelWriter pw  = image.getPixelWriter();
+
+        //color(this.size/2.0, this.size/2.0);
 
         for(int j=0; j<size; ++j) {
             for(int i=0; i<size; ++i) {
