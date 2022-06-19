@@ -10,7 +10,10 @@ module ditz.atrops.hedron {
     requires java.desktop;
     requires javafx.swing;
 
+    requires org.controlsfx.controls;
+
     opens ditz.atrops.hedron to javafx.graphics;
     opens ditz.atrops.collections to javafx.graphics;
     opens ditz.atrops.hedron.colors to javafx.graphics;
+    opens ditz.atrops.hedron.gui to javafx.graphics;
 }

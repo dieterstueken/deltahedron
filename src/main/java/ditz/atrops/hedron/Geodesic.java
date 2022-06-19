@@ -16,11 +16,11 @@ import javafx.scene.shape.TriangleMesh;
  */
 public class Geodesic {
 
-    final Colors colors;
+    public final Colors colors;
 
-    final Faces faces;
+    public final Faces faces;
 
-    final Points points;
+    public final Points points;
 
     public Geodesic() {
         colors = new Colors(3*256);
@@ -61,7 +61,7 @@ public class Geodesic {
         return points.remove(index);
     }
 
-    public MeshView createMesh() {
+    public MeshView createView() {
         TriangleMesh mesh = new TriangleMesh();
 
         mesh.getTexCoords().setAll(colors.coords());

@@ -15,7 +15,7 @@ public class RandomSphere extends UnitSphere {
         generate(rand::nextPoint, initial);
     }
 
-    RandomSphere(Collection<? extends Point3D> points) {
+    public RandomSphere(Collection<? extends Point3D> points) {
         addPoints(points);
     }
 

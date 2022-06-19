@@ -1,17 +1,27 @@
-package ditz.atrops.hedron;
+package ditz.atrops.hedron.gui;
 
+import ditz.atrops.hedron.Cube;
+import ditz.atrops.hedron.RandomPoints;
+import ditz.atrops.hedron.RandomSphere;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Insets;
 import javafx.scene.*;
+import javafx.scene.control.Label;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.ObservableFaceArray;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
+
+import org.controlsfx.control.PlusMinusSlider;
 
 /**
  * version:     $
@@ -26,7 +36,6 @@ public class View extends Application {
 
     private static final float WIDTH = 600;
     private static final float HEIGHT = 500;
-
     private static final float SIZE = 100;
 
     private double anchorX, anchorY;
@@ -37,29 +46,44 @@ public class View extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Camera camera = new PerspectiveCamera(true);
-        camera.setNearClip(1);
-        camera.setFarClip(10000);
-        camera.translateZProperty().set(-1000);
 
-        Group world = new Group(prepareHedron());
-        world.getTransforms().add(new Scale(SIZE, SIZE, SIZE));
+        BorderPane border = new BorderPane();
 
-        Scene scene = new Scene(world, WIDTH, HEIGHT, true);
+
+
+        border.setRight(controls());
+
+        MeshView hedron = prepareHedron();
+        border.setCenter(hedron);
+
+        Scene scene = new Scene(border, WIDTH, HEIGHT, true);
         //scene.setFill(Color.SILVER);
-        scene.setCamera(camera);
+        //Camera camera = new PerspectiveCamera(true);
+        //camera.setNearClip(1);
+        //camera.setFarClip(10000);
+        //camera.translateZProperty().set(-1000);
+        //scene.setCamera(camera);
 
-        initMouseControl(world, scene, primaryStage);
+        initMouseControl(hedron, scene, primaryStage);
 
         primaryStage.setTitle("DeltaHedrons");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    private void initMouseControl(Group group, Scene scene, Stage stage) {
+    Node controls() {
+        Node slider = new PlusMinusSlider();
+        Node label = new Label("hello");
+        VBox vbox = new VBox(label, slider);
+        vbox.setPadding(new Insets(10)); // Set all sides to 10
+        vbox.setSpacing(8);              // Gap between nodes
+        return vbox;
+    }
+
+    private void initMouseControl(Node node, Scene scene, Stage stage) {
         Rotate xRotate;
         Rotate yRotate;
-        group.getTransforms().addAll(
+        node.getTransforms().addAll(
                 xRotate = new Rotate(0, Rotate.X_AXIS),
                 yRotate = new Rotate(0, Rotate.Y_AXIS)
         );
@@ -80,14 +104,14 @@ public class View extends Application {
 
         stage.addEventHandler(ScrollEvent.SCROLL, event -> {
             double delta = event.getDeltaY();
-            group.translateZProperty().set(group.getTranslateZ() + delta);
+            node.translateZProperty().set(node.getTranslateZ() + delta);
         });
     }
 
-    private Node prepareHedron() {
+    private MeshView prepareHedron() {
 
-        MeshView view = sphere.createMesh();
-
+        MeshView view = sphere.createView();
+        view.getTransforms().add(new Scale(SIZE, SIZE, SIZE));
         view.setOnMouseClicked(e->{
             int selectedFace = e.getPickResult().getIntersectedFace();
             if(selectedFace>0) {
