@@ -51,6 +51,14 @@ public class Geodesic {
     public Vertex removePoint(int index) {
         return points.remove(index);
     }
+    
+    public Vertex removePoint() {
+        int size = points.size();
+        if(size>3)
+            return points.remove(size-1);
+        else
+            return null;
+    }
 
     public Vertex removePoint(Vertex vertex) {
         int index = vertex.getIndex();
