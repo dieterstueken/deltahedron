@@ -12,7 +12,6 @@ import javafx.scene.shape.MeshView;
 import javafx.scene.shape.ObservableFaceArray;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
-import javafx.scene.transform.Scale;
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,6 +23,8 @@ public class SphereGroup {
 
     public static final float WIDTH = 600;
     public static final float HEIGHT = 500;
+
+    final PerspectiveCamera  camera = new PerspectiveCamera(true);
 
     final RandomSphere sphere;
     final MeshView hedron;
@@ -42,21 +43,17 @@ public class SphereGroup {
 
         Group root = new Group(light, ambientLight, hedron);
 
+        camera.setTranslateZ(-10);
+
         scene = new SubScene(root, WIDTH, HEIGHT);
         scene.setFill(Color.TRANSPARENT);
-        scene.setCamera(new PerspectiveCamera());
+        scene.setCamera(camera);
         new MouseControl(scene);
     }
-
-    private static final float SIZE = 100;
 
     private static MeshView prepareHedron(RandomSphere sphere) {
 
         MeshView view = sphere.createView();
-        view.setTranslateX(SIZE);
-        view.setTranslateY(SIZE);
-
-        view.getTransforms().add(new Scale(SIZE, SIZE, SIZE));
 
         view.setOnMouseClicked(e->{
             int selectedFace = e.getPickResult().getIntersectedFace();
@@ -106,8 +103,10 @@ public class SphereGroup {
         }
 
         void scroll(ScrollEvent event) {
+            double dist = camera.getTranslateZ();
             double delta = event.getDeltaY();
-            hedron.translateZProperty().set(hedron.getTranslateZ() + delta);
+            dist += dist*delta/200.0;
+            camera.translateZProperty().set(dist);
         }
     }
 

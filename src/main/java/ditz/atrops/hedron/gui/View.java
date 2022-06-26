@@ -3,8 +3,6 @@ package ditz.atrops.hedron.gui;
 import ditz.atrops.hedron.Cube;
 import ditz.atrops.hedron.RandomSphere;
 import javafx.application.Application;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -24,16 +22,6 @@ import org.controlsfx.control.PlusMinusSlider;
 public class View extends Application {
 
     final RandomSphere sphere = new RandomSphere(Cube.UNIT);
-
-    private static final float WIDTH = 600;
-    private static final float HEIGHT = 500;
-    private static final float SIZE = 100;
-
-    private double anchorX, anchorY;
-    private double anchorAngleX = 0;
-    private double anchorAngleY = 0;
-    private final DoubleProperty angleX = new SimpleDoubleProperty(0);
-    private final DoubleProperty angleY = new SimpleDoubleProperty(0);
 
     @Override
     public void start(Stage primaryStage) {
