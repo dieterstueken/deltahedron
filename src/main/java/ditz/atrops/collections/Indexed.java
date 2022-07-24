@@ -1,6 +1,10 @@
 package ditz.atrops.collections;
 
+import java.util.Comparator;
+
 public class Indexed {
+
+    public static Comparator<Indexed> ORDER = Comparator.comparingInt(Indexed::getIndex);
 
     private int index;
 

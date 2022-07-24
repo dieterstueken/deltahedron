@@ -40,7 +40,7 @@ class Triplet {
     }
 
     public static int colors(int i0, int i1, int i2) {
-        return i0%4 + 4*(i1%4 +4*(i2%4));
+        return (i0&3) + 4*((i1&3) + 4*(i2&3));
     }
 
     public int colors() {

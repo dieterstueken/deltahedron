@@ -38,10 +38,6 @@ public class ObservableFaces extends IndexedList<Face> {
         values.submitChange(sizeChanged, 6*from, 6*to);
     }
 
-    protected final void fireChange(int i) {
-        fireChange(false, i, i+1);
-    }
-
     public void addTarget(ObservableIntegerArray target) {
         values.addTarget(target);
         this.target = target;

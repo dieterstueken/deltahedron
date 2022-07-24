@@ -47,6 +47,12 @@ public class Points extends ObservablePoints {
         return removed;
     }
 
+    public void setColor(int index, int color) {
+        Vertex p = get(index);
+        p.setColor(color);
+        faces.stream().filter(f -> f.contains(p)).forEach(faces::update);
+    }
+
     @Override
     public boolean verify(Predicate<? super Vertex> verify) {
 

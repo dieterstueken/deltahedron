@@ -1,5 +1,6 @@
 package ditz.atrops.hedron.gui;
 
+import ditz.atrops.hedron.Face;
 import ditz.atrops.hedron.RandomPoints;
 import ditz.atrops.hedron.RandomSphere;
 import javafx.animation.AnimationTimer;
@@ -9,8 +10,6 @@ import javafx.scene.*;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
-import javafx.scene.shape.ObservableFaceArray;
-import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 
 /**
@@ -57,11 +56,9 @@ public class SphereGroup {
 
         view.setOnMouseClicked(e->{
             int selectedFace = e.getPickResult().getIntersectedFace();
-            if(selectedFace>0) {
-                ObservableFaceArray faces = ((TriangleMesh) view.getMesh()).getFaces();
-                int colorId = faces.get(6 * selectedFace + 1);
+            if(selectedFace>=0) {
                 sphere.faces.updateColor(selectedFace);
-                System.out.format("face: %d color: %d\n", selectedFace, colorId);
+                print(sphere.faces.get(selectedFace));
             }
         });
 
@@ -69,6 +66,16 @@ public class SphereGroup {
         //timer.start();
 
         return view;
+    }
+
+    static void print(Face face) {
+        System.out.format("face: %d colors: %d %02x:%02x:%02x\n",
+                face.getIndex(),
+                face.getColor(),
+                face.getColor(0),
+                face.getColor(1),
+                face.getColor(2)
+        );
     }
 
     class MouseControl {

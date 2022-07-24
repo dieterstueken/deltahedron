@@ -1,9 +1,11 @@
 package ditz.atrops.hedron;
 
+import ditz.atrops.collections.RandomList;
 import ditz.atrops.hedron.colors.Colored;
 import javafx.geometry.Point3D;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -17,6 +19,19 @@ public class Vertex extends Colored {
 
     // ordered list of adjacent faces.
     Faces faces = new Faces();
+
+    public final List<Vertex> adjacents = new RandomList<>() {
+
+        @Override
+        public int size() {
+            return faces.size();
+        }
+
+        @Override
+        public Vertex get(int index) {
+            return getAdjacent(index);
+        }
+    };
 
     static class Faces extends ArrayList<Face> {
 
@@ -116,6 +131,10 @@ public class Vertex extends Colored {
         Face f0 = faces.get(i);
         int k = f0.indexOf(this);
         return f0.getPoint(j+k);
+    }
+
+    public Vertex getAdjacent(int index) {
+        return getVertex(index, 1);
     }
 
     public boolean addFace(Face newFace) {

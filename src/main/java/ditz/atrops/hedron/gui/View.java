@@ -1,7 +1,8 @@
 package ditz.atrops.hedron.gui;
 
-import ditz.atrops.hedron.Cube;
 import ditz.atrops.hedron.RandomSphere;
+import ditz.atrops.hedron.Tetraeder;
+import ditz.atrops.hedron.colors.Dyer;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -21,7 +22,9 @@ import javafx.stage.Stage;
  */
 public class View extends Application {
 
-    final RandomSphere sphere = new RandomSphere(Cube.UNIT);
+    final RandomSphere sphere = new RandomSphere(Tetraeder.UNIT);
+
+    final Dyer dyer = new Dyer(sphere);
 
     Label label = new Label("hello");
 
@@ -57,12 +60,21 @@ public class View extends Application {
         vbox.getChildren().add(increment(-1));
         vbox.getChildren().add(increment(-10));
         vbox.getChildren().add(increment(-100));
+
+        vbox.getChildren().add(dyer());
+
         return vbox;
     }
 
     Button increment(int count) {
         var button = new Button(Integer.toString(count));
         button.setOnAction(e -> incrementPoints(count));
+        return button;
+    }
+
+    Button dyer() {
+        var button = new Button("dye");
+        button.setOnAction(e -> dyer.dye());
         return button;
     }
 
@@ -76,5 +88,8 @@ public class View extends Application {
         }
 
         label.setText(Integer.toString(sphere.points.size()));
+
+        sphere.stat().showLine();
+        dyer.dye();
     }
 }

@@ -72,11 +72,11 @@ public class RandomSphere extends UnitSphere {
 
         Set<Stat> stats = new TreeSet<>();
 
-        int lim = 100;
+        int lim = 10000;
 
         for(int i=0; i<lim; ++i) {
 
-            s.addPoints(10);
+            s.addPoints(12);
 
             //while(s.points.size()>4) {
             //    Vertex vx = s.findFirst(v->v.faces.size()==3);

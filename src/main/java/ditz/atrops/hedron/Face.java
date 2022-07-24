@@ -1,10 +1,10 @@
 package ditz.atrops.hedron;
 
+import ditz.atrops.collections.RandomList;
 import ditz.atrops.hedron.colors.Colored;
 import javafx.geometry.Point3D;
 
-import java.util.AbstractList;
-import java.util.RandomAccess;
+import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
@@ -32,7 +32,7 @@ public class Face extends Colored {
         return new Point3D(x,y,z);
     }
 
-    public class Points extends AbstractList<Vertex> implements RandomAccess {
+    public class Points extends RandomList<Vertex> {
 
         public int size() {
             return 3;
@@ -82,6 +82,19 @@ public class Face extends Colored {
 
     public final Points points = new Points();
 
+    public final List<Face> adjacents = new RandomList<>() {
+
+        @Override
+        public int size() {
+            return points.size();
+        }
+
+        @Override
+        public Face get(int index) {
+            return getAdjacent(index);
+        }
+    };
+
     final Point3D nom;
     final double det;
 
@@ -98,6 +111,10 @@ public class Face extends Colored {
 
         this.det = det(v0.p0, v1.p0, v2.p0);
         this.nom = nom(v0.p0, v1.p0, v2.p0);
+    }
+
+    public boolean contains(Vertex point) {
+        return points.contains(point);
     }
 
     public boolean verify() {
@@ -131,7 +148,7 @@ public class Face extends Colored {
     }
 
     public int getColor(int index) {
-        return getPoint(index).getColor()%4;
+        return getPoint(index).getColor();
     }
 
     // dist from face
@@ -186,6 +203,11 @@ public class Face extends Colored {
             throw new IllegalArgumentException("not on vertex");
     }
 
+    /**
+     * Find the adjacent face at a given point.
+     * @param i index of point.
+     * @return the adjacent face.
+     */
     public Face getAdjacent(int i) {
         // get opposite edge p1:p2
         Vertex p1 = points.get(i+1);

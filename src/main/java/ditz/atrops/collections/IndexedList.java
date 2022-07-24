@@ -2,10 +2,9 @@ package ditz.atrops.collections;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.RandomAccess;
 import java.util.function.Predicate;
 
-abstract public class IndexedList<T extends Indexed> extends AbstractList<T> implements RandomAccess {
+abstract public class IndexedList<T extends Indexed> extends AbstractList<T> {
 
     protected final ArrayList<T> elements = new ArrayList<>();
 
@@ -39,8 +38,16 @@ abstract public class IndexedList<T extends Indexed> extends AbstractList<T> imp
 
     abstract protected void fireChange(boolean sizeChanged, int from, int to);
 
+    public void fireChange() {
+        fireChange(false, 0, size());
+    }
+
     protected void sizeChanged() {
         fireChange(true, 0, 0);
+    }
+
+    protected void fireChange(int i) {
+        fireChange(false, i, i+1);
     }
 
     public void update(int index) {
