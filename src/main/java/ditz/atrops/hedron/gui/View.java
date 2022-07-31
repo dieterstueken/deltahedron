@@ -1,7 +1,5 @@
 package ditz.atrops.hedron.gui;
 
-import ditz.atrops.hedron.RandomSphere;
-import ditz.atrops.hedron.Tetraeder;
 import ditz.atrops.hedron.colors.Dyer;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -22,9 +20,9 @@ import javafx.stage.Stage;
  */
 public class View extends Application {
 
-    final RandomSphere sphere = new RandomSphere(Tetraeder.UNIT);
+    final SphereGroup sphere = new SphereGroup();
 
-    final Dyer dyer = new Dyer(sphere);
+    final Dyer dyer = new Dyer(sphere.sphere);
 
     Label label = new Label("hello");
 
@@ -37,15 +35,11 @@ public class View extends Application {
         BorderPane border = new BorderPane();
 
         border.setRight(controls());
-        border.setCenter(sphere());
+        border.setCenter(sphere.box);
 
         Scene scene = new Scene(border);
         primaryStage.setScene(scene);
         primaryStage.show();
-    }
-
-    Node sphere() {
-        return new SphereGroup(sphere).scene;
     }
 
     Node controls() {
@@ -79,17 +73,10 @@ public class View extends Application {
     }
 
     void incrementPoints(int count) {
+        sphere.incrementPoints(count);
 
-        for (int i = 0; i < Math.abs(count); ++i) {
-            if (count > 0)
-                sphere.addPoint();
-            else
-                sphere.removePoint();
-        }
+        label.setText(Integer.toString(sphere.sphere.points.size()));
 
-        label.setText(Integer.toString(sphere.points.size()));
-
-        sphere.stat().showLine();
         dyer.dye();
     }
 }

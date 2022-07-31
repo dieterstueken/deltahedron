@@ -1,5 +1,6 @@
 package ditz.atrops.hedron.gui;
 
+import ditz.atrops.hedron.Cube;
 import ditz.atrops.hedron.Face;
 import ditz.atrops.hedron.RandomPoints;
 import ditz.atrops.hedron.RandomSphere;
@@ -8,6 +9,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.*;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Rotate;
@@ -28,9 +30,13 @@ public class SphereGroup {
     final RandomSphere sphere;
     final MeshView hedron;
     final SubScene scene;
-    
-    SphereGroup(RandomSphere sphere) {
-        this.sphere = sphere;
+
+    final GraphGroup graph = new GraphGroup();
+
+    final HBox box;
+
+    SphereGroup() {
+        this.sphere = new RandomSphere(Cube.UNIT);
         this.hedron = prepareHedron(sphere);
 
         PointLight light = new PointLight(Color.WHITE);
@@ -48,6 +54,10 @@ public class SphereGroup {
         scene.setFill(Color.TRANSPARENT);
         scene.setCamera(camera);
         new MouseControl(scene);
+
+        box = new HBox(scene, graph.canvas);
+
+        graph.draw(sphere);
     }
 
     private static MeshView prepareHedron(RandomSphere sphere) {
@@ -115,6 +125,20 @@ public class SphereGroup {
             dist += dist*delta/200.0;
             camera.translateZProperty().set(dist);
         }
+    }
+
+    void incrementPoints(int count) {
+
+        for (int i = 0; i < Math.abs(count); ++i) {
+            if (count > 0)
+                sphere.addPoint();
+            else
+                sphere.removePoint();
+        }
+
+        graph.draw(sphere);
+
+        sphere.stat().showLine();
     }
 
     private AnimationTimer animation() {
