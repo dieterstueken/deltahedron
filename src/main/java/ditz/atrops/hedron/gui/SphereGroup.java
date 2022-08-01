@@ -1,9 +1,9 @@
 package ditz.atrops.hedron.gui;
 
-import ditz.atrops.hedron.Cube;
 import ditz.atrops.hedron.Face;
 import ditz.atrops.hedron.RandomPoints;
 import ditz.atrops.hedron.RandomSphere;
+import ditz.atrops.hedron.Tetraeder;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -36,7 +36,7 @@ public class SphereGroup {
     final HBox box;
 
     SphereGroup() {
-        this.sphere = new RandomSphere(Cube.UNIT);
+        this.sphere = new RandomSphere(Tetraeder.UNIT);
         this.hedron = prepareHedron(sphere);
 
         PointLight light = new PointLight(Color.WHITE);

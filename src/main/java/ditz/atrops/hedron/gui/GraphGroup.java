@@ -24,10 +24,11 @@ public class GraphGroup {
         //pane = new BorderPane(canvas);
     }
 
-    void draw(Vertex v, Coord2DConsumer target) {
-        double x = v.p0.getX();
-        double y = v.p0.getY();
-        double z = v.p0.getZ();
+    void draw(Vertex v1, Vertex v2, double g, Coord2DConsumer target) {
+        double h = 1-g;
+        double x = g*v1.p0.getX() + h*v2.p0.getX();
+        double y = g*v1.p0.getY() + h*v2.p0.getY();
+        double z = g*v1.p0.getZ() + h*v2.p0.getZ();
 
         double r = Math.hypot(x, y);
         double d = 0;
@@ -38,7 +39,17 @@ public class GraphGroup {
         
         d *= size/2.5;
 
-        target.apply(d*(x+1), d*(y+1));
+        target.apply(d*x+size/2, d*y+size/2);
+    }
+
+    void draw(GraphicsContext gc, Vertex v0, Vertex v1) {
+        gc.beginPath();
+        draw(v0, v1, 0, gc::moveTo);
+        for(int i=1; i<50; ++i) {
+            draw(v0, v1, i/50.0, gc::lineTo);
+        }
+        draw(v0, v1, 1, gc::lineTo);
+        gc.stroke();
     }
 
     public void draw(Geodesic sphere) {
@@ -50,10 +61,7 @@ public class GraphGroup {
         for (Vertex v0 : sphere.points) {
             for(Vertex v1:v0.adjacents) {
                 if(v1.getIndex()<v0.getIndex()) {
-                    gc.beginPath();
-                    draw(v0, gc::moveTo);
-                    draw(v1, gc::lineTo);
-                    gc.stroke();
+                    draw(gc, v0, v1);
                 }
             }
         }
