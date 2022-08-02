@@ -3,10 +3,7 @@ package ditz.atrops.hedron.gui;
 import ditz.atrops.hedron.Face;
 import ditz.atrops.hedron.RandomSphere;
 import ditz.atrops.hedron.Tetraeder;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.*;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -106,45 +103,6 @@ public class SphereGroup {
                 face.getColor(1),
                 face.getColor(2)
         );
-    }
-
-    class MouseControl {
-
-        private double anchorX, anchorY;
-        private double anchorAngleX = 0;
-        private double anchorAngleY = 0;
-        private final DoubleProperty angleX = new SimpleDoubleProperty(0);
-        private final DoubleProperty angleY = new SimpleDoubleProperty(0);
-
-        MouseControl(SubScene scene) {
-            Rotate xRotate = new Rotate(0, Rotate.X_AXIS);
-            Rotate yRotate = new Rotate(0, Rotate.Y_AXIS);
-            xRotate.angleProperty().bind(angleX);
-            yRotate.angleProperty().bind(angleY);
-
-            objects.getTransforms().addAll(xRotate, yRotate);
-
-            objects.setOnMousePressed(event -> {
-                anchorX = event.getSceneX();
-                anchorY = event.getSceneY();
-                anchorAngleX = angleX.get();
-                anchorAngleY = angleY.get();
-            });
-
-            objects.setOnMouseDragged(event -> {
-                angleX.set(anchorAngleX - (anchorY - event.getSceneY()));
-                angleY.set(anchorAngleY + anchorX - event.getSceneX());
-            });
-
-            scene.addEventHandler(ScrollEvent.SCROLL, this::scroll);
-        }
-
-        void scroll(ScrollEvent event) {
-            double dist = camera.getTranslateZ();
-            double delta = event.getDeltaY();
-            dist += dist*delta/200.0;
-            camera.setTranslateZ(dist);
-        }
     }
 
     void incrementPoints(int count) {
