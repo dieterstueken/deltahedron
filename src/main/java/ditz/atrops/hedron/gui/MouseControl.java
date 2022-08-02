@@ -40,8 +40,9 @@ class MouseControl {
         });
 
         objects.setOnMouseDragged(event -> {
-                xRotate.setAngle(anchorAngleX - (anchorY - event.getSceneY()));
-                yRotate.setAngle(anchorAngleY + anchorX - event.getSceneX());
+                double d = scene.getCamera().getTranslateZ()/10;
+                xRotate.setAngle(anchorAngleX - d*(anchorY - event.getSceneY()));
+                yRotate.setAngle(anchorAngleY + d*(anchorX - event.getSceneX()));
         });
 
         scene.addEventHandler(ScrollEvent.SCROLL, this::scroll);

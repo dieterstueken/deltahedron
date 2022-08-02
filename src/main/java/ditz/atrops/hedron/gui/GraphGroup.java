@@ -3,6 +3,7 @@ package ditz.atrops.hedron.gui;
 import ditz.atrops.hedron.Geodesic;
 import ditz.atrops.hedron.Vertex;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
@@ -24,8 +25,6 @@ public class GraphGroup {
 
     ReadOnlyObjectProperty<Transform> transform;
 
-    //final BorderPane pane;
-
     final Canvas canvas = new Canvas(size,size);
 
     public GraphGroup(Geodesic sphere, Node objects) {
@@ -34,35 +33,56 @@ public class GraphGroup {
         transform.addListener(obs -> draw());
     }
 
-    void draw(Point3D p0, Point3D p1, double g, Coord2DConsumer target) {
-        double h = 1-g;
-        double x = g*p0.getX() + h*p1.getX();
-        double y = g*p0.getY() + h*p1.getY();
-        double z = g*p0.getZ() + h*p1.getZ();
-
+    Point2D transform(double x, double y, double z) {
         double r = Math.hypot(x, y);
         double d = 0;
         if(r>0) {
             double th = Math.atan2(r, z);
             d = th / Math.PI / r;
+        } else {
+            if(z<0) {
+                d = 1;
+                x = 1;
+            }
         }
-        
+
         d *= size/2.5;
 
-        target.apply(d*x+size/2, d*y+size/2);
+        return new Point2D(size/2+d*x, size/2-d*y);
     }
 
-    void draw(GraphicsContext gc, Point3D p0, Point3D p1) {
-        Transform t = transform.get();
-        p0 = t.transform(p0);
-        p1 = t.transform(p1);
-        gc.beginPath();
-        draw(p0, p1, 0, gc::moveTo);
-        for(int i=1; i<50; ++i) {
-            draw(p0, p1, i/50.0, gc::lineTo);
+    Point2D transform(Point3D p) {
+        return transform(p.getX(), p.getY(), p.getZ());
+    }
+
+    void draw(GraphicsContext gc, Point3D v0, Point2D p0, Point3D v1, Point2D p1) {
+        double d = p0.distance(p1);
+
+        if(d<10) {
+            gc.lineTo(p1.getX(), p1.getY());
+
+        } else {
+            Point3D vm = v0.midpoint(v1).normalize();
+            Point2D pm = transform(vm);
+            draw(gc, v0, p0, vm, pm);
+            draw(gc, vm, pm, v1, p1);
         }
-        draw(p0, p1, 1, gc::lineTo);
+    }
+
+    void draw(GraphicsContext gc, Point3D v0, Point3D v1) {
+        Point2D p0 = transform(v0);
+        Point2D p1 = transform(v1);
+        gc.beginPath();
+        gc.moveTo(p0.getX(), p0.getY());
+        draw(gc, v0, p0, v1, p1);
         gc.stroke();
+    }
+
+    void draw(GraphicsContext gc, Vertex v0, Vertex v1) {
+        Transform t = transform.get();
+        Point3D p0 = t.transform(v0.p0);
+        Point3D p1 = t.transform(v1.p0);
+        draw(gc, p0, p1);
     }
 
     public void draw() {
@@ -74,7 +94,7 @@ public class GraphGroup {
         for (Vertex v0 : sphere.points) {
             for(Vertex v1:v0.adjacents) {
                 if(v1.getIndex()<v0.getIndex()) {
-                    draw(gc, v0.p0, v1.p0);
+                    draw(gc, v0, v1);
                 }
             }
         }
