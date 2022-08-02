@@ -79,7 +79,7 @@ public class Geodesic {
         MeshView view = new MeshView(mesh);
         view.setMaterial(colors.getMaterial());
         view.setDrawMode(DrawMode.FILL);
-        view.setCullFace(CullFace.BACK);
+        view.setCullFace(CullFace.FRONT);
 
         return view;
     }

@@ -23,17 +23,17 @@ public class Tetraeder extends AbstractList<Point3D> implements RandomAccess {
     final Point3D p2;
     final Point3D p3;
 
-    public Tetraeder(double radius) {
-        p0 = new Point3D(0, 0, 1);
-
+    public Tetraeder(double r) {
         double ct = -1.0/3;
         double st = Math.sqrt(8)/3;
-        p1 = new Point3D(st, 0, ct);
+        p0 = new Point3D(r*st, 0, r*ct);
 
         double sct = st * ct;
         double sst = st * st;
-        p2 = new Point3D(sct, sst, ct);
-        p3 = new Point3D(sct,-sst, ct);
+        p1 = new Point3D(r*sct, r*sst, r*ct);
+        p2 = new Point3D(r*sct,-r*sst, r*ct);
+
+        p3 = new Point3D(0, 0, r);
     }
 
     public int size() {

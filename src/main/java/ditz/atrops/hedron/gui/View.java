@@ -35,7 +35,7 @@ public class View extends Application {
         BorderPane border = new BorderPane();
 
         border.setRight(controls());
-        border.setCenter(sphere.box);
+        border.setCenter(sphere.view);
 
         Scene scene = new Scene(border);
         primaryStage.setScene(scene);

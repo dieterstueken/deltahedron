@@ -153,7 +153,7 @@ public class Face extends Colored {
 
     // dist from face
     public double dist(Point3D p) {
-        return nom.dotProduct(p) - det;
+        return det-nom.dotProduct(p);
     }
 
     public double dist(Vertex v) {

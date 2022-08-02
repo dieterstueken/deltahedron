@@ -1,16 +1,16 @@
 package ditz.atrops.hedron.gui;
 
 import ditz.atrops.hedron.Face;
-import ditz.atrops.hedron.RandomPoints;
 import ditz.atrops.hedron.RandomSphere;
 import ditz.atrops.hedron.Tetraeder;
-import javafx.animation.AnimationTimer;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.*;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.PhongMaterial;
+import javafx.scene.shape.Box;
 import javafx.scene.shape.MeshView;
 import javafx.scene.transform.Rotate;
 
@@ -28,16 +28,15 @@ public class SphereGroup {
     final PerspectiveCamera  camera = new PerspectiveCamera(true);
 
     final RandomSphere sphere;
-    final MeshView hedron;
+    final Node objects;
     final SubScene scene;
 
     final GraphGroup graph = new GraphGroup();
 
-    final HBox box;
+    final HBox view;
 
     SphereGroup() {
         this.sphere = new RandomSphere(Tetraeder.UNIT);
-        this.hedron = prepareHedron(sphere);
 
         PointLight light = new PointLight(Color.WHITE);
         light.setTranslateX(50);
@@ -46,18 +45,39 @@ public class SphereGroup {
 
         AmbientLight ambientLight = new AmbientLight(Color.WHITE);
 
-        Group root = new Group(light, ambientLight, hedron);
+        Node x = axis(Color.RED, 0);
+        Node y = axis(Color.GREEN, 1);
+        Node z = axis(Color.BLUE, 2);
 
-        camera.setTranslateZ(-10);
+        MeshView hedron = prepareHedron(sphere);
 
-        scene = new SubScene(root, WIDTH, HEIGHT);
+        objects = new Group(hedron, x, y, z);
+
+        Group root = new Group(light, ambientLight, objects);
+
+        camera.setRotationAxis(Rotate.X_AXIS);
+        camera.setRotate(180);
+        camera.setTranslateZ(10);
+
+        scene = new SubScene(root, WIDTH, HEIGHT, true, SceneAntialiasing.DISABLED);
         scene.setFill(Color.TRANSPARENT);
         scene.setCamera(camera);
         new MouseControl(scene);
 
-        box = new HBox(scene, graph.canvas);
+        view = new HBox(scene, graph.canvas);
 
         graph.draw(sphere);
+    }
+
+    Node axis(Color color, int i) {
+        PhongMaterial material = new PhongMaterial();
+        material.setDiffuseColor(color.darker());
+        material.setSpecularColor(color);
+        double d = 1.0/32;
+        double l = 3;
+        Box node = new Box(i==0?l:d,i==1?l:d,i==2?l:d);
+        node.setMaterial(material);
+        return node;
     }
 
     private static MeshView prepareHedron(RandomSphere sphere) {
@@ -102,16 +122,16 @@ public class SphereGroup {
             xRotate.angleProperty().bind(angleX);
             yRotate.angleProperty().bind(angleY);
 
-            hedron.getTransforms().addAll(xRotate, yRotate);
+            objects.getTransforms().addAll(xRotate, yRotate);
 
-            hedron.setOnMousePressed(event -> {
+            objects.setOnMousePressed(event -> {
                 anchorX = event.getSceneX();
                 anchorY = event.getSceneY();
                 anchorAngleX = angleX.get();
                 anchorAngleY = angleY.get();
             });
 
-            hedron.setOnMouseDragged(event -> {
+            objects.setOnMouseDragged(event -> {
                 angleX.set(anchorAngleX - (anchorY - event.getSceneY()));
                 angleY.set(anchorAngleY + anchorX - event.getSceneX());
             });
@@ -123,7 +143,7 @@ public class SphereGroup {
             double dist = camera.getTranslateZ();
             double delta = event.getDeltaY();
             dist += dist*delta/200.0;
-            camera.translateZProperty().set(dist);
+            camera.setTranslateZ(dist);
         }
     }
 
@@ -139,26 +159,5 @@ public class SphereGroup {
         graph.draw(sphere);
 
         sphere.stat().showLine();
-    }
-
-    private AnimationTimer animation() {
-        return new AnimationTimer() {
-            final RandomPoints rand = new RandomPoints();
-
-            long until = 0;
-
-            @Override
-            public void handle(long now) {
-                if(now>until) {
-
-                    sphere.random(30, 50, 10);
-                    System.out.print(sphere.points.size());
-                    System.out.print(" ");
-                    sphere.stat().showLine();
-
-                    until = now + 300000000L;
-                }
-            }
-        };
     }
 }
