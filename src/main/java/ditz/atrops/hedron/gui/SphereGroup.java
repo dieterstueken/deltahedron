@@ -28,7 +28,7 @@ public class SphereGroup {
     final Node objects;
     final SubScene scene;
 
-    final GraphGroup graph = new GraphGroup();
+    final GraphGroup graph;
 
     final HBox view;
 
@@ -49,6 +49,7 @@ public class SphereGroup {
         MeshView hedron = prepareHedron(sphere);
 
         objects = new Group(hedron, x, y, z);
+        graph = new GraphGroup(sphere, objects);
 
         Group root = new Group(light, ambientLight, objects);
 
@@ -63,7 +64,7 @@ public class SphereGroup {
 
         view = new HBox(scene, graph.canvas);
 
-        graph.draw(sphere);
+        graph.draw();
     }
 
     Node axis(Color color, int i) {
@@ -114,7 +115,7 @@ public class SphereGroup {
                 sphere.removePoint();
         }
 
-        graph.draw(sphere);
+        graph.draw();
 
         sphere.stat().showLine();
     }
