@@ -55,7 +55,7 @@ public class Geodesic {
     public Vertex removePoint() {
         int size = points.size();
         if(size>3)
-            return points.remove(size-1);
+            return removePoint(size-1);
         else
             return null;
     }
