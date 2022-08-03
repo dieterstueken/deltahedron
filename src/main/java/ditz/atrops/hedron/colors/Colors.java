@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class Colors {
 
-    static final List<Color> COLORS = List.of(
+    public static final List<Color> COLORS = List.of(
             Color.GOLD,
             Color.PALEVIOLETRED,
             Color.FORESTGREEN,

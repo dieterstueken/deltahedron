@@ -3,6 +3,7 @@ package ditz.atrops.hedron.gui;
 import ditz.atrops.hedron.Face;
 import ditz.atrops.hedron.RandomSphere;
 import ditz.atrops.hedron.Tetraeder;
+import ditz.atrops.hedron.colors.Dyer;
 import javafx.scene.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -32,8 +33,17 @@ public class SphereGroup {
 
     final HBox view;
 
+    final Dyer dyer;
+
+
+    public void dye() {
+        dyer.dye();
+        graph.draw();
+    }
+
     SphereGroup() {
         this.sphere = new RandomSphere(Tetraeder.UNIT);
+        this.dyer = new Dyer(sphere);
 
         PointLight light = new PointLight(Color.WHITE);
         light.setTranslateX(50);

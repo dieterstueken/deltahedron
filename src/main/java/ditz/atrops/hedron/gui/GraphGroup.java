@@ -2,6 +2,7 @@ package ditz.atrops.hedron.gui;
 
 import ditz.atrops.hedron.Geodesic;
 import ditz.atrops.hedron.Vertex;
+import ditz.atrops.hedron.colors.Colors;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
@@ -10,6 +11,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
+
+import static javafx.scene.shape.ArcType.CHORD;
 
 /**
  * Created by IntelliJ IDEA.
@@ -20,6 +23,7 @@ import javafx.scene.transform.Transform;
 public class GraphGroup {
 
     static double size = 600;
+    static double dot = 6;
 
     final Geodesic sphere;
 
@@ -93,10 +97,19 @@ public class GraphGroup {
 
         for (Vertex v0 : sphere.points) {
             for(Vertex v1:v0.adjacents) {
-                if(v1.getIndex()<v0.getIndex()) {
+                if(v1.getIndex()>v0.getIndex()) {
                     draw(gc, v0, v1);
                 }
             }
+        }
+
+        Transform t = transform.get();
+
+        for (Vertex v0 : sphere.points) {
+            Point2D p0 = transform(t.transform(v0.p0));
+            Color color = Colors.COLORS.get(v0.color%4);
+            gc.setFill(color);
+            gc.fillArc(p0.getX()-dot, p0.getY()-dot, 2*dot, 2*dot, 0, 360, CHORD);
         }
     }
 }

@@ -2,14 +2,21 @@ package ditz.atrops.hedron;
 
 import javafx.geometry.Point3D;
 
-import java.util.Collection;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Predicate;
 
 public class RandomSphere extends UnitSphere {
 
     RandomPoints rand = new RandomPoints();
+
+    List<Point3D> removed = new ArrayList<>();
+
+    @Override
+    public Vertex removePoint(int index) {
+        Vertex v = super.removePoint(index);
+        removed.add(v.p0);
+        return v;
+    }
 
     RandomSphere(int initial) {
         generate(rand::nextPoint, initial);
@@ -23,8 +30,16 @@ public class RandomSphere extends UnitSphere {
         this(4);
     }
 
+    private Point3D nextPoint() {
+        if(removed.isEmpty())
+            return rand.nextPoint();
+
+        int n = removed.size();
+        return removed.remove(n-1);
+    }
+
     public void addPoint() {
-        addPoint(rand.nextPoint());
+        addPoint(nextPoint());
     }
 
     public void addPoints(int limit) {

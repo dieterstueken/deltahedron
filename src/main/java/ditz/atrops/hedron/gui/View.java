@@ -1,6 +1,5 @@
 package ditz.atrops.hedron.gui;
 
-import ditz.atrops.hedron.colors.Dyer;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -21,8 +20,6 @@ import javafx.stage.Stage;
 public class View extends Application {
 
     final SphereGroup sphere = new SphereGroup();
-
-    final Dyer dyer = new Dyer(sphere.sphere);
 
     Label label = new Label("hello");
 
@@ -68,7 +65,7 @@ public class View extends Application {
 
     Button dyer() {
         var button = new Button("dye");
-        button.setOnAction(e -> dyer.dye());
+        button.setOnAction(e -> sphere.dye());
         return button;
     }
 
@@ -77,6 +74,6 @@ public class View extends Application {
 
         label.setText(Integer.toString(sphere.sphere.points.size()));
 
-        dyer.dye();
+        sphere.dye();
     }
 }
